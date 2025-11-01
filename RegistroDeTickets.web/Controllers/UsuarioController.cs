@@ -111,12 +111,45 @@ namespace RegistroDeTickets.web.Controllers
 
         private string GenerarCuerpoEmailRecuperacion(string link)
         {
-            return $"<h1>Recuperación de Contraseña</h1>" +
-                   $"<p>Recibimos una solicitud para restablecer tu contraseña. " +
-                   $"Si no fuiste vos, ignorá este mensaje.</p>" +
-                   $"<p>Hacé click en el siguiente enlace para continuar:</p>" +
-                   $"<a href='{link}'>Restablecer mi contraseña</a>" +
-                   $"<p>El enlace expirará en 30 minutos.</p>";
+            return $@"
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+
+        </head>
+        <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; '>
+            <h1 style='color: #2c3e50; font-size: 24px; font-weight: bold; margin-bottom: 20px;'>
+                Recuperación de Contraseña
+            </h1>
+            
+            <p style='margin-bottom: 15px;'>
+                Recibimos una solicitud para restablecer tu contraseña. 
+                Si no fuiste vos, ignorá este mensaje.
+            </p>
+            
+            <p style='margin-bottom: 15px;'>
+                Hacé click en el siguiente botón para continuar:
+            </p>
+            
+            <p style='margin-bottom: 15px;'>
+                <a href='{link}' 
+                   style='background-color: #3498db; 
+                          color: white; 
+                          padding: 12px 24px; 
+                          text-decoration: none; 
+                          border-radius: 5px; 
+                          display: inline-block;'>
+                    Restablecer mi contraseña
+                </a>
+            </p>
+            
+            <p style='margin-top: 20px; color: #7f8c8d; font-size: 14px;'>
+                El enlace expirará en 30 minutos.
+            </p>
+        </body>
+        </html>
+    ";
         }
 
         [HttpGet]

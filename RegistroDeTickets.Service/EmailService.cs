@@ -31,6 +31,8 @@ namespace RegistroDeTickets.Service
 
             smtpCliente.Credentials = new NetworkCredential(emailEmisor, password);
             var mensaje = new MailMessage(emailEmisor!, emailReceptor, tema, cuerpo);
+            mensaje.IsBodyHtml = true;
+
             await smtpCliente.SendMailAsync(mensaje);
         }
     }
