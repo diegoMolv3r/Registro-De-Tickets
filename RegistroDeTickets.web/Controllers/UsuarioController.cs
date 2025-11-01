@@ -2,7 +2,6 @@
 using RegistroDeTickets.Service;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.web.Models;
-using RegistroDeTickets.Service;
 
 namespace RegistroDeTickets.web.Controllers
 {

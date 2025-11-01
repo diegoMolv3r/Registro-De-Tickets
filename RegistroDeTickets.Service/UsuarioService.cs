@@ -33,7 +33,7 @@ namespace RegistroDeTickets.Service
 
         private readonly IPasswordHasher<Usuario> _passwordHasher;
 
-        private Usuario usuario;
+        //private Usuario usuario;
 
 
         public UsuarioService(IUsuarioRepository usuarioRepository, IPasswordHasher<Usuario> passwordHasher)
@@ -79,9 +79,14 @@ namespace RegistroDeTickets.Service
 
         public bool RestablecerContrasenia(string email, string token, string nuevaContrasenia)
         {
+            var usuario = _usuarioRepository.BuscarUsuarioPorEmail(email);
+            if (usuario == null)
+            {
+                return false;
+            }
 
             var hashTokenRecibido = HashearToken(token);
-            if (usuario.TokenHashRecuperacion != hashTokenRecibido)
+            if (string.IsNullOrEmpty(usuario.TokenHashRecuperacion) || usuario.TokenHashRecuperacion != hashTokenRecibido)
             {
                 return false;
             }

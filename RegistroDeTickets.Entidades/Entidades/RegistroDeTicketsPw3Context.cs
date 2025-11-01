@@ -135,6 +135,10 @@ public partial class RegistroDeTicketsPw3Context : DbContext
 
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.Username).HasMaxLength(20);
+
+            entity.Property(e => e.TokenHashRecuperacion).HasColumnType("NVARCHAR(MAX)");
+
+            entity.Property(e => e.TokenHashRecuperacionExpiracion).HasColumnType("DATETIME2");
         });
 
         OnModelCreatingPartial(modelBuilder);
