@@ -20,12 +20,10 @@ namespace RegistroDeTickets.Service
 
         public async Task EnviarEmail(string emailReceptor, string tema, string cuerpo)
         {
-            var emailEmisor = configuration.GetValue<string>("Email_EMAIL");
-            var password = configuration.GetValue<string>("Email_PASSWORD");
-            var host = configuration.GetValue<string>("Email_HOST");
-            var puerto = configuration.GetValue<int>("Email_PUERTO");
-
-
+            var emailEmisor = configuration.GetSection("CONFIGURACIONES_EMAIL")["EMAIL"];
+            var password = configuration.GetSection("CONFIGURACIONES_EMAIL")["PASSWORD"];
+            var host = configuration.GetSection("CONFIGURACIONES_EMAIL")["HOST"];
+            var puerto = Int32.Parse(configuration.GetSection("CONFIGURACIONES_EMAIL")["PUERTO"]);
 
             var smtpCliente = new SmtpClient(host, puerto);
             smtpCliente.EnableSsl = true;
