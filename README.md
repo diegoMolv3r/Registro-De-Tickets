@@ -51,3 +51,23 @@ El proyecto utiliza un enfoque **Database-First**. Una vez creada la base de dat
 ### Consola de Administrador de Paquetes (PMC)
 ```powershell
 Scaffold-DbContext "Server=DESKTOP-7IS0SRC\SQLEXPRESS;Database=RegistroDeTicketsPW3;Trusted_Connection=True;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -Project RegistroDeTickets.Data -OutputDir Entidades -Force
+```
+
+---
+
+## 📧 Configuración de Credenciales de Email
+
+Para que el servicio de envío de correos electrónicos funcione, configurar las credenciales SMTP en los User Secrets:
+1. __Crear User Secrets__ (secrets.json): Clic derecho en el proyecto (RegistroDeTickets.web) $\rightarrow$ "Administrar secretos de usuario" o "Manage User Secrets"
+2. __Agregar la configuración__ siguiente al archivo creado y reemplazar los valores que faltan:
+
+```json
+{
+  "CONFIGURACIONES_EMAIL": {
+    "EMAIL": "xxxx xxxx xxxxx",
+    "PASSWORD": "xx xxx xxx",
+    "HOST": "smtp.gmail.com",
+    "PUERTO": 587
+  }
+}
+```
