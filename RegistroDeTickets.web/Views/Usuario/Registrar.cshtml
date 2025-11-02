@@ -1,4 +1,8 @@
 ﻿@{
+    Layout = "/Views/Shared/_LoginLayout.cshtml";
+}
+
+@{
     ViewData["Title"] = "Registrarse";
 }
 
@@ -9,8 +13,8 @@
         padding: 30px;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        width: 100%;
         max-width: 400px;
+        margin-top: 150px;
     }
 </style>
 
@@ -53,7 +57,7 @@
         </div>
 
         <div class="text-center mt-3">
-            <p class="text-info">¿Ya tienes una cuenta? <a href="#">Login</a></p>
+            <p class="text-info">¿Ya tienes una cuenta? <a asp-area="" asp-controller="Login" asp-action="IniciarSesion">Login</a></p>
         </div>
     </form>
 </div>

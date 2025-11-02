@@ -13,8 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Administrador\" />
-    <Folder Include="Views\Tecnico\" />
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
 

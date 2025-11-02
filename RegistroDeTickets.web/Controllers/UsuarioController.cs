@@ -8,9 +8,15 @@ using RegistroDeTickets.web.Models;
 
 namespace RegistroDeTickets.web.Controllers
 {
-    public class UsuarioController(IUsuarioService usuarioService) : Controller
+    public class UsuarioController : Controller
     {
-        public readonly IUsuarioService _usuarioService = usuarioService;
+        private readonly IUsuarioService _usuarioService;
+
+        public UsuarioController(IUsuarioService usuarioService)
+        {
+            _usuarioService = usuarioService;
+        }
+
 
         [HttpGet]
         public IActionResult Registrar()
@@ -31,56 +37,38 @@ namespace RegistroDeTickets.web.Controllers
                 Email = usuarioVM.Email,
                 PasswordHash = usuarioVM.Contrasenia
             });
-            return RedirectToAction("Listar");
+                return RedirectToAction("IniciarSesion");
         }
 
+        [HttpGet]
         public IActionResult IniciarSesion()
         {
             ViewBag.GoogleClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
             return View();
         }
 
-        [HttpGet]
-        public IActionResult GoogleSignIn()
-        {
-            ViewBag.GoogleClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
-            return RedirectToAction("IniciarSesion");
-        }
-
         [HttpPost]
-        public async Task<IActionResult> GoogleSignIn([FromBody] GoogleTokenDto data)
+        public IActionResult IniciarSesion(LoginViewModel usuario)
         {
-            if (string.IsNullOrEmpty(data?.Credential))
-                return BadRequest(new { success = false, message = "Token inválido o vacío." });
-
-            try
+            if (!ModelState.IsValid)
             {
-                var payload = await GoogleJsonWebSignature.ValidateAsync(
-                    data.Credential,
-                    new GoogleJsonWebSignature.ValidationSettings
-                    {
-                        Audience = new[]
-                        {
-                    Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")
-                        }
-                    });
+                return View(usuario);
+            }
 
-                _usuarioService.RegistrarUsuarioGoogle(payload.Email, payload.Name);
+            var usuarioEncontrado = _usuarioService.BuscarUsuarioPorEmail(usuario.Email);
 
-                return Ok(new
-                {
-                    success = true,
-                    redirectUrl = Url.Action("Inicio", "Home")
-                });
+            if (usuarioEncontrado == null)
+            { 
+                TempData["Mensaje"] = "Usuario Inexistente";
+                return View(usuario);
             }
-            catch (InvalidJwtException)
-            {
-                return BadRequest(new { success = false, message = "Token de Google inválido." });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = "Error interno del servidor", error = ex.Message });
-            }
+
+
+            return RedirectToAction("Inicio","Home");
+        }
+        public IActionResult Listar()
+        {
+            return RedirectToAction("Registrar");
         }
     }
 }

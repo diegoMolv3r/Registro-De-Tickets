@@ -20,7 +20,11 @@ namespace RegistroDeTickets.Service
         // Buscar por email
         Usuario BuscarPorEmail(string email);
 
-        Usuario RegistrarUsuarioGoogle(string email, string nombreCompleto);
+        void DesignarUsuarioComoTecnico(Usuario usuario);
+
+        void DesignarUsuarioComoCliente(Usuario usuario);
+
+        List<Usuario> ObtenerTecnicos();
     }
 
     public class UsuarioService : IUsuarioService
@@ -78,6 +82,36 @@ namespace RegistroDeTickets.Service
 
             _usuarioRepository.AgregarUsuario(nuevoUsuario);
             return nuevoUsuario;
+        }
+
+        public Usuario ObtenerUsuarioPorId(int id)
+        {
+            return _usuarioRepository.ObtenerUsuarioPorId(id);
+        }
+
+        public void DesignarUsuarioComoTecnico(Usuario usuario)
+        {
+            if (usuario.Tecnico == null)
+            {
+                usuario.Tecnico = new Tecnico { IdNavigation = usuario };
+                _usuarioRepository.AgregarTecnico(usuario.Tecnico);
+                _usuarioRepository.EditarUsuario(usuario);
+            }
+        }
+
+        public void DesignarUsuarioComoCliente(Usuario usuario)
+        {
+            if (usuario.Cliente == null)
+            {
+                usuario.Cliente = new Cliente { IdNavigation = usuario };
+                _usuarioRepository.AgregarCliente(usuario.Cliente);
+                _usuarioRepository.EditarUsuario(usuario);
+            }
+        }
+
+        public List<Usuario> ObtenerTecnicos()
+        {
+            return _usuarioRepository.ObtenerTecnicos();
         }
     }
 }

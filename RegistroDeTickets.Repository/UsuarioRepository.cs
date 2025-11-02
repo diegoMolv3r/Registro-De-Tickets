@@ -19,6 +19,16 @@ namespace RegistroDeTickets.Repository
 
         // Buscar por email
         Usuario BuscarPorEmail(string email);
+
+        Usuario ObtenerUsuarioPorId(int id);
+
+        void AgregarTecnico(Tecnico tecnico);
+
+        void AgregarCliente(Cliente cliente);
+
+        Usuario BuscarUsuarioPorEmail(string email);
+
+        List<Usuario> ObtenerTecnicos();
     }
 
     public class UsuarioRepository : IUsuarioRepository
@@ -38,12 +48,28 @@ namespace RegistroDeTickets.Repository
 
         public List<Usuario> ObtenerUsuarios()
         {
-            return _ctx.Usuarios.ToList();
+            return _ctx.Usuarios
+        .Include(u => u.Administrador)
+        .Include(u => u.Tecnico)
+        .Include(u => u.Cliente)
+        .ToList();
         }
 
         public void EditarUsuario(Usuario usuario)
         {
-            throw new NotImplementedException();
+            _ctx.Usuarios.Update(usuario);
+        }
+
+        public void AgregarTecnico(Tecnico tecnico)
+        {
+            _ctx.Tecnicos.Add(tecnico);
+            _ctx.SaveChanges();
+        }
+
+        public void AgregarCliente(Cliente cliente)
+        {
+            _ctx.Clientes.Add(cliente);
+            _ctx.SaveChanges();
         }
 
         public void EliminarUsuario(Usuario usuario)
@@ -55,6 +81,24 @@ namespace RegistroDeTickets.Repository
         public Usuario BuscarPorEmail(string email)
         {
             return _ctx.Usuarios.FirstOrDefault(u => u.Email == email);
+        }
+
+        public Usuario BuscarUsuarioPorEmail(string email)
+        {
+            return _ctx.Usuarios.FirstOrDefault(u => u.Email == email);
+        }
+
+        public Usuario ObtenerUsuarioPorId(int id)
+        {
+            return _ctx.Usuarios.FirstOrDefault(u => u.Id == id);
+        }
+
+        public List<Usuario> ObtenerTecnicos()
+        { 
+            return _ctx.Usuarios
+                .Include(u => u.Tecnico)
+                .Where(u => u.Tecnico != null)
+                .ToList();
         }
     }
 }

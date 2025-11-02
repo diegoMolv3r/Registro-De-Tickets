@@ -1,7 +1,14 @@
-﻿@{
-    ViewData["Title"] = "Iniciar Sesion";
+﻿
+@{
+    Layout = "/Views/Shared/_LoginLayout.cshtml";
 }
 
+@model RegistroDeTickets.web.Models.LoginViewModel
+
+
+@{
+    ViewData["Title"] = "Iniciar Sesion";
+}
 
 <style>
     .registration-form {
@@ -9,34 +16,49 @@
         padding: 30px;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        width: 100%;
         max-width: 400px;
+        margin-top: 150px;
     }
 </style>
 
 <div class="registration-form">
     <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Iniciar Sesion</h2>
-    <form>
+
+    <form asp-action="IniciarSesion" method="post">
+
         <div class="input-group mb-3">
             <span class="input-group-text"><i class="bi bi-person"></i></span>
-            <input type="text" class="form-control" id="username" placeholder="Nombre de usuario" required>
+            <input asp-for="Email" type="text" class="form-control" id="email" placeholder="Email">
+            
+        </div>
+        <div class="input-group mb-3">
+            <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
         <div class="input-group mb-3">
             <span class="input-group-text"><i class="bi bi-lock"></i></span>
-            <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
+            <input asp-for="PasswordHash" type="password" class="form-control" id="password" placeholder="Contraseña">
             <button class="input-group-text" type="button" id="togglePassword">
                 <i class="bi bi-eye"></i>
             </button>
+            
+        </div>
+        <div class="input-group mb-3">
+            <span asp-validation-for="PasswordHash" class="text-danger"></span>
         </div>
 
         <div class="d-grid">
-            <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
+            <button type="submit" class="btn btn-primary btn-block mb-3">Ingresar</button>
+        </div>
+
+        <div class="d-grid">
+            <a class="btn btn-outline-primary" asp-area="" asp-controller="Usuario" asp-action="Registrar">Registrarme</a>
         </div>
 
         <div class="text-center mt-3">
-            <p class="text-info">¿No tenés cuenta? <a href="#">Registrarse</a></p>
+            <a class="text-info" asp-area="" asp-controller="Login" asp-action="RecuperarContrasenia">¿Olvidaste tu contraseña?</a>
         </div>
+
     </form>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
