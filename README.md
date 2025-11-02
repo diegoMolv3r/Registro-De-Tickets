@@ -55,7 +55,7 @@ Scaffold-DbContext "Server=DESKTOP-7IS0SRC\SQLEXPRESS;Database=RegistroDeTickets
 
 ---
 
-## 📧 Configuración de Credenciales de Email
+## 📧 Configuración de Credenciales de Email (User Secrets)
 
 Para que el servicio de envío de correos electrónicos funcione, configurar las credenciales SMTP en los User Secrets:
 1. __Crear User Secrets__ (secrets.json): Clic derecho en el proyecto (RegistroDeTickets.web) $\rightarrow$ "Administrar secretos de usuario" o "Manage User Secrets"
