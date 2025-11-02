@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RegistroDeTickets.Data.Entidades;
+namespace RegistroDeTickets.web.Entidades;
 
-public partial class Cliente
+public partial class Tecnico
 {
     public int Id { get; set; }
-
-    public string? Domicilio { get; set; }
 
     public virtual Usuario IdNavigation { get; set; } = null!;
 

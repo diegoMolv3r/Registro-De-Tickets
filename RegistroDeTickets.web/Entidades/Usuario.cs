@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RegistroDeTickets.Data.Entidades;
+namespace RegistroDeTickets.web.Entidades;
 
 public partial class Usuario
 {
@@ -12,10 +12,6 @@ public partial class Usuario
     public string Email { get; set; } = null!;
 
     public string PasswordHash { get; set; } = null!;
-
-    public string? TokenHashRecuperacion { get; set; }
-
-    public DateTime? TokenHashRecuperacionExpiracion { get; set; }
 
     public string Estado { get; set; } = null!;
 

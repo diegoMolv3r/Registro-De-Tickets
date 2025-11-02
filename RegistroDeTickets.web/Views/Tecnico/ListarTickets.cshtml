@@ -1,6 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Listar Tickets";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "/Views/Shared/_TecnicoLayout.cshtml";
 }
 @model List<RegistroDeTickets.Data.Entidades.Ticket>
 
@@ -82,8 +81,7 @@
                         <th scope="col">Prioridad</th>
                         <th scope="col">Fecha de creación</th>
                         <th scope="col">Cliente</th>
-                        <th scope="col">Asignado</th>
-                        <th scope="col">Asignar Tecnico</th>
+                        <th scope="col">Ver Ticket</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -95,9 +93,8 @@
                             <td>@ticket.PrioridadId</td>
                             <td>@ticket.FechaCreacion</td>
                             <td>@ticket.IdCliente</td>
-                            <td>@(ticket.IdTecnico != null ? "Id de tecnico: " + ticket.IdTecnico : "No")</td>
                             <td class="text-center action-buttons">
-                                <a class="btn btn-primary btn-sm" asp-controller="Administrador" asp-action="AsignarTecnicoATicket" asp-route-Id="@ticket.Id" title="Asignar tecnico a ticket"><i class="bi bi-pencil-fill"></i></a>
+                                <a class="btn btn-primary btn-sm" asp-controller="Tecnico" asp-action="VerTicket" asp-route-Id="@ticket.Id" title="Asignar tecnico a ticket"><i class="bi bi-pencil-fill"></i></a>
                             </td>
                         </tr>
                     }

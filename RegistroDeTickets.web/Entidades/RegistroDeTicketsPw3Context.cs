@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace RegistroDeTickets.Data.Entidades;
+namespace RegistroDeTickets.web.Entidades;
 
 public partial class RegistroDeTicketsPw3Context : DbContext
 {
@@ -141,19 +141,15 @@ public partial class RegistroDeTicketsPw3Context : DbContext
 
             entity.ToTable("Usuario");
 
-            entity.HasIndex(e => e.Id).IsUnique();
+            entity.HasIndex(e => e.Id, "UQ__Usuario__3214EC061B012619").IsUnique();
 
-            entity.HasIndex(e => e.Username).IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Usuario__536C85E49FFF920C").IsUnique();
 
-            entity.HasIndex(e => e.Email).IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Usuario__A9D105342BB12427").IsUnique();
 
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.Estado).HasMaxLength(20);
             entity.Property(e => e.Username).HasMaxLength(20);
-
-            entity.Property(e => e.TokenHashRecuperacion).HasColumnType("NVARCHAR(MAX)");
-
-            entity.Property(e => e.TokenHashRecuperacionExpiracion).HasColumnType("DATETIME2");
         });
 
         OnModelCreatingPartial(modelBuilder);

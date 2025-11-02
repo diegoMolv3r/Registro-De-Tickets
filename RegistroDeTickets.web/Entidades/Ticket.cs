@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RegistroDeTickets.Data.Entidades;
+namespace RegistroDeTickets.web.Entidades;
 
 public partial class Ticket
 {
