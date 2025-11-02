@@ -70,7 +70,7 @@ namespace RegistroDeTickets.web.Controllers
                 return Ok(new
                 {
                     success = true,
-                    redirectUrl = Url.Action("Index", "Home")
+                    redirectUrl = Url.Action("Inicio", "Home")
                 });
             }
             catch (InvalidJwtException)
