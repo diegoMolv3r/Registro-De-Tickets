@@ -1,3 +1,4 @@
+
 --CREATE DATABASE RegistroDeTicketsPW3;
 USE RegistroDeTicketsPW3;
 GO
@@ -24,6 +25,7 @@ CREATE TABLE Usuario(
 	Username NVARCHAR(20) NOT NULL UNIQUE,
 	Email NVARCHAR(255) NOT NULL UNIQUE,
 	PasswordHash NVARCHAR(MAX) NOT NULL,
+    Estado NVARCHAR(20) NOT NULL,
 	CONSTRAINT PK_usuario PRIMARY KEY (Id)
 );
 
@@ -45,6 +47,7 @@ CREATE TABLE Tecnico (
 GO
 CREATE TABLE Cliente (
     Id INT NOT NULL,
+    Domicilio NVARCHAR(MAX),
     -- Columnas específicas eliminadas según solicitud
 
     CONSTRAINT PK_Cliente PRIMARY KEY (Id),
@@ -73,6 +76,15 @@ CREATE TABLE Ticket(
 );
 GO
 
+CREATE TABLE ReporteTecnico(
+    IdReporte INT IDENTITY(1,1) NOT NULL,
+    Descripcion NVARCHAR(MAX) NOT NULL,
+    FechaCreacion DATE NOT NULL,
+    IdTicket INT NOT NULL,
+    CONSTRAINT PK_ReporteTecnico PRIMARY KEY (IdReporte),
+    CONSTRAINT FK_Ticket FOREIGN KEY (IdTicket) REFERENCES Ticket(Id),
+);
+GO
 -- No se olviden de cambiar el servidor por el que tengan en su SqlServer
 
 -- Comando para la consola del Administrador de paquetes de NuGet.

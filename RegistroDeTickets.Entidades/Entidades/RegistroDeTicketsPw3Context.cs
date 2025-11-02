@@ -19,6 +19,8 @@ public partial class RegistroDeTicketsPw3Context : DbContext
 
     public virtual DbSet<Cliente> Clientes { get; set; }
 
+    public virtual DbSet<ReporteTecnico> ReporteTecnicos { get; set; }
+
     public virtual DbSet<Tecnico> Tecnicos { get; set; }
 
     public virtual DbSet<Ticket> Tickets { get; set; }
@@ -29,13 +31,9 @@ public partial class RegistroDeTicketsPw3Context : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-    //      => optionsBuilder.UseSqlServer("Server=DESKTOP-7IS0SRC\\SQLEXPRESS;Database=RegistroDeTicketsPW3;\nTrusted_Connection=True;\nTrustServerCertificate=True\n");
-    
-    // Modifico el script para nico-dev 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=RegistroDeTicketsPW3;User Id=nicoDbo;Password=154896manInCode#;TrustServerCertificate=True");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("BASE_DE_DATOS"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -61,6 +59,18 @@ public partial class RegistroDeTicketsPw3Context : DbContext
             entity.HasOne(d => d.IdNavigation).WithOne(p => p.Cliente)
                 .HasForeignKey<Cliente>(d => d.Id)
                 .HasConstraintName("FK_Cliente_Usuario");
+        });
+
+        modelBuilder.Entity<ReporteTecnico>(entity =>
+        {
+            entity.HasKey(e => e.IdReporte);
+
+            entity.ToTable("ReporteTecnico");
+
+            entity.HasOne(d => d.IdTicketNavigation).WithMany(p => p.ReporteTecnicos)
+                .HasForeignKey(d => d.IdTicket)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Ticket");
         });
 
         modelBuilder.Entity<Tecnico>(entity =>
@@ -131,13 +141,14 @@ public partial class RegistroDeTicketsPw3Context : DbContext
 
             entity.ToTable("Usuario");
 
-            entity.HasIndex(e => e.Id, "UQ__Usuario__3214EC0608723551").IsUnique();
+            entity.HasIndex(e => e.Id, "UQ__Usuario__3214EC061F12E25F").IsUnique();
 
-            entity.HasIndex(e => e.Username, "UQ__Usuario__536C85E4F6FCD591").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Usuario__536C85E49F5567F4").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Usuario__A9D105342A3C6061").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Usuario__A9D1053482DE72A3").IsUnique();
 
             entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.Estado).HasMaxLength(20);
             entity.Property(e => e.Username).HasMaxLength(20);
         });
 
