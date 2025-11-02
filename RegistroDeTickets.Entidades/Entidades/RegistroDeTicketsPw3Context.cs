@@ -19,6 +19,8 @@ public partial class RegistroDeTicketsPw3Context : DbContext
 
     public virtual DbSet<Cliente> Clientes { get; set; }
 
+    public virtual DbSet<ReporteTecnico> ReporteTecnicos { get; set; }
+
     public virtual DbSet<Tecnico> Tecnicos { get; set; }
 
     public virtual DbSet<Ticket> Tickets { get; set; }
@@ -57,6 +59,18 @@ public partial class RegistroDeTicketsPw3Context : DbContext
             entity.HasOne(d => d.IdNavigation).WithOne(p => p.Cliente)
                 .HasForeignKey<Cliente>(d => d.Id)
                 .HasConstraintName("FK_Cliente_Usuario");
+        });
+
+        modelBuilder.Entity<ReporteTecnico>(entity =>
+        {
+            entity.HasKey(e => e.IdReporte);
+
+            entity.ToTable("ReporteTecnico");
+
+            entity.HasOne(d => d.IdTicketNavigation).WithMany(p => p.ReporteTecnicos)
+                .HasForeignKey(d => d.IdTicket)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Ticket");
         });
 
         modelBuilder.Entity<Tecnico>(entity =>
@@ -127,13 +141,14 @@ public partial class RegistroDeTicketsPw3Context : DbContext
 
             entity.ToTable("Usuario");
 
-            entity.HasIndex(e => e.Id, "UQ__Usuario__3214EC06342E076A").IsUnique();
+            entity.HasIndex(e => e.Id).IsUnique();
 
-            entity.HasIndex(e => e.Username, "UQ__Usuario__536C85E44F3F93CB").IsUnique();
+            entity.HasIndex(e => e.Username).IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Usuario__A9D105340F5F23AF").IsUnique();
+            entity.HasIndex(e => e.Email).IsUnique();
 
             entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.Estado).HasMaxLength(20);
             entity.Property(e => e.Username).HasMaxLength(20);
         });
 

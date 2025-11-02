@@ -13,6 +13,8 @@ public partial class Usuario
 
     public string PasswordHash { get; set; } = null!;
 
+    public string Estado { get; set; } = null!;
+
     public virtual Administrador? Administrador { get; set; }
 
     public virtual Cliente? Cliente { get; set; }

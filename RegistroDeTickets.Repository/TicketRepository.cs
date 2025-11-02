@@ -1,4 +1,5 @@
-﻿using RegistroDeTickets.Data.Entidades;
+﻿using Microsoft.EntityFrameworkCore;
+using RegistroDeTickets.Data.Entidades;
 
 namespace RegistroDeTickets.Repository
 {
@@ -9,6 +10,9 @@ namespace RegistroDeTickets.Repository
         void EditarTicket(Ticket ticket);
         void EliminarTicket(Ticket ticket);
         Ticket BuscarTicketPorId(int id);
+        Ticket BuscarTicketPorIdConReporte(int id);
+
+        List<Ticket> BuscarTicketsPorIdTecnico(int idTecnico);
     }
 
     public class TicketRepository : ITicketRepository
@@ -29,7 +33,8 @@ namespace RegistroDeTickets.Repository
         public void EditarTicket(Ticket ticket)
         {
             // Editar ticket seria solo para modificar el estado y el tecnico asignado
-            throw new NotImplementedException();
+            ctx.Tickets.Update(ticket);
+            ctx.SaveChanges();
         }
 
         public void EliminarTicket(Ticket ticket)
@@ -41,6 +46,22 @@ namespace RegistroDeTickets.Repository
         public List<Ticket> ObtenerTickets()
         {
             return ctx.Tickets.ToList();
+        }
+        
+        public List<Ticket> BuscarTicketsPorIdTecnico(int idTecnico)
+        {
+            return ctx.Tickets
+                .Where(t => t.IdTecnico == idTecnico)
+                .ToList();
+        }
+
+        public Ticket BuscarTicketPorIdConReporte(int id) 
+        {
+               
+            return ctx.Tickets
+                    .Include(t => t.ReporteTecnicos)
+                    .First(t => t.Id == id);
+
         }
     }
 }

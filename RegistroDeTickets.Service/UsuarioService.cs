@@ -19,6 +19,8 @@ namespace RegistroDeTickets.Service
         void DesignarUsuarioComoTecnico(Usuario usuario);
 
         void DesignarUsuarioComoCliente(Usuario usuario);
+
+        List<Usuario> ObtenerTecnicos();
     }
     public class UsuarioService : IUsuarioService
     {
@@ -76,5 +78,9 @@ namespace RegistroDeTickets.Service
             }
         }
 
+        public List<Usuario> ObtenerTecnicos()
+        {
+            return _usuarioRepository.ObtenerTecnicos();
+        }
     }
 }

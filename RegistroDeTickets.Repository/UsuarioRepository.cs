@@ -24,6 +24,8 @@ namespace RegistroDeTickets.Repository
         void AgregarCliente(Cliente cliente);
 
         Usuario BuscarUsuarioPorEmail(string email);
+
+        List<Usuario> ObtenerTecnicos();
     }
     public class UsuarioRepository(RegistroDeTicketsPw3Context ctx) : IUsuarioRepository
     {
@@ -39,8 +41,8 @@ namespace RegistroDeTickets.Repository
         {
             return _ctx.Usuarios
         .Include(u => u.Administrador)
-        .Include(u => u.Tecnico)       
-        .Include(u => u.Cliente)       
+        .Include(u => u.Tecnico)
+        .Include(u => u.Cliente)
         .ToList();
         }
 
@@ -49,7 +51,7 @@ namespace RegistroDeTickets.Repository
             _ctx.Usuarios.Update(usuario);
         }
 
-        public void AgregarTecnico (Tecnico tecnico)
+        public void AgregarTecnico(Tecnico tecnico)
         {
             _ctx.Tecnicos.Add(tecnico);
             _ctx.SaveChanges();
@@ -75,6 +77,14 @@ namespace RegistroDeTickets.Repository
         public Usuario ObtenerUsuarioPorId(int id)
         {
             return _ctx.Usuarios.FirstOrDefault(u => u.Id == id);
+        }
+
+        public List<Usuario> ObtenerTecnicos()
+        { 
+            return _ctx.Usuarios
+                .Include(u => u.Tecnico)
+                .Where(u => u.Tecnico != null)
+                .ToList();
         }
     }
 }
