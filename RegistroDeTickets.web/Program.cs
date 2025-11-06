@@ -2,9 +2,13 @@ using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using Microsoft.EntityFrameworkCore;
 using RegistroDeTickets.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// interfaz y context
 var connectionString = builder.Configuration.GetConnectionString("EFCoreContext");
 builder.Services.AddDbContext<RegistroDeTicketsPw3Context>(options =>
     options.UseSqlServer(connectionString));
@@ -14,6 +18,25 @@ builder.Services.AddScoped<ITicketService, TicketService>();
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+
+//jwt
+var key = builder.Configuration["Jwt:Key"];
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "RegistroDeTickets.Web",
+        ValidAudience = "RegistroDeTickets.Web",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+    };
+});
+
+builder.Services.AddSingleton(new TokenService(builder.Configuration["Jwt:Key"]));
+
 
 builder.Services.AddControllersWithViews();
 
@@ -38,6 +61,7 @@ app.UseHttpsRedirection(); // Implementar Https Redirection punto 6.3 del TP
 app.UseStaticFiles();
 app.UseRouting();
 
+app.UseAuthentication();//jwt
 app.UseAuthorization();
 
 app.MapStaticAssets();
