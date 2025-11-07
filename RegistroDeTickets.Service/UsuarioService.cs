@@ -25,6 +25,10 @@ namespace RegistroDeTickets.Service
         void DesignarUsuarioComoCliente(Usuario usuario);
 
         List<Usuario> ObtenerTecnicos();
+
+        Usuario ObtenerUsuarioPorId(int id);
+        Usuario RegistrarUsuarioGoogle(string email, string nombreCompleto);
+
     }
 
     public class UsuarioService : IUsuarioService

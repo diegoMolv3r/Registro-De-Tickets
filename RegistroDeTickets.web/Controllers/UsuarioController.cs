@@ -35,7 +35,8 @@ namespace RegistroDeTickets.web.Controllers
             {
                 Username = usuarioVM.Username,
                 Email = usuarioVM.Email,
-                PasswordHash = usuarioVM.Contrasenia
+                PasswordHash = usuarioVM.Contrasenia,
+                Estado = "Activo"
             });
                 return RedirectToAction("IniciarSesion");
         }
@@ -55,7 +56,7 @@ namespace RegistroDeTickets.web.Controllers
                 return View(usuario);
             }
 
-            var usuarioEncontrado = _usuarioService.BuscarUsuarioPorEmail(usuario.Email);
+            var usuarioEncontrado = _usuarioService.BuscarPorEmail(usuario.Email);
 
             if (usuarioEncontrado == null)
             { 
