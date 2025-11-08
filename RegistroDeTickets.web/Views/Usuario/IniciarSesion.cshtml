@@ -21,9 +21,11 @@
     }
 </style>
 
-<div class="registration-form">
-    <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Iniciar Sesion</h2>
 
+<div class="registration-form">
+  
+    <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Iniciar Sesion</h2>
+   
     <form asp-action="IniciarSesion" method="post">
 
         <div class="input-group mb-3">
@@ -31,6 +33,14 @@
             <input asp-for="Email" type="text" class="form-control" id="email" placeholder="Email">
             
         </div>
+        
+        @{
+        if (TempData["MensajeErrorE"] != null)
+        {
+            <div class="alert alert-info">@TempData["MensajeErrorE"]</div>
+        }
+         }
+
         <div class="input-group mb-3">
             <span asp-validation-for="Email" class="text-danger"></span>
         </div>
@@ -41,8 +51,13 @@
             <button class="input-group-text" type="button" id="togglePassword">
                 <i class="bi bi-eye"></i>
             </button>
-            
         </div>
+        @{
+            if (TempData["MensajeErrorP"] != null)
+            {
+                <div class="alert alert-info">@TempData["MensajeErrorP"]</div>
+            }
+        }
         <div class="input-group mb-3">
             <span asp-validation-for="PasswordHash" class="text-danger"></span>
         </div>
@@ -54,13 +69,57 @@
         <div class="d-grid">
             <a class="btn btn-outline-primary" asp-area="" asp-controller="Usuario" asp-action="Registrar">Registrarme</a>
         </div>
-
-        <div class="text-center mt-3">
-            <a class="text-info" asp-area="" asp-controller="Login" asp-action="RecuperarContrasenia">¿Olvidaste tu contraseña?</a>
+         
+        <div class="text-center mb-3">
+            <a asp-controller="Usuario"
+               asp-action="SolicitarRecuperacion"
+               class="text-info">
+                ¿Olvidaste tu contraseña?
+            </a>
         </div>
 
     </form>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <div id="g_id_onload"
+         data-client_id="@ViewBag.GoogleClientId"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-login_uri="https://localhost:7243/Usuario/GoogleSignIn"
+         data-callback="onGoogleSignIn"
+         data-auto_select="false">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large">
+    </div>
 </div>
+
+<script>
+    async function onGoogleSignIn(response) {
+        const credential = response.credential;
+
+        const result = await fetch("/Usuario/GoogleSignIn", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ credential })
+        });
+
+        const data = await result.json();
+
+        if (data.success) {
+            window.location.href = data.redirectUrl;
+        } else {
+            alert("Error al iniciar sesión con Google: " + data.message);
+        }
+    }
+</script>
 
 <script>
     const setupPasswordToggle = (toggleButtonId, passwordInputId) => {

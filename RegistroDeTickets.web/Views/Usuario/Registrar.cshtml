@@ -37,11 +37,11 @@
 
         <div class="input-group mb-3">
             <span class="input-group-text"><i class="bi bi-lock"></i></span>
-            <input asp-for="Contrasenia" type="password" class="form-control" id="password" placeholder="Contraseña" required>
+            <input asp-for="PasswordHash" type="password" class="form-control" id="password" placeholder="Contraseña" required>
             <button class="input-group-text" type="button" id="togglePassword">
                 <i class="bi bi-eye"></i>
             </button>
-            <span asp-validation-for="Contrasenia" class="text-danger"></span>
+            <span asp-validation-for="PasswordHash" class="text-danger"></span>
         </div>
 
         <div class="input-group mb-4">
@@ -57,7 +57,7 @@
         </div>
 
         <div class="text-center mt-3">
-            <p class="text-info">¿Ya tienes una cuenta? <a asp-area="" asp-controller="Login" asp-action="IniciarSesion">Login</a></p>
+            <p class="text-info">¿Ya tienes una cuenta? <a asp-area="" asp-controller="Usuario" asp-action="IniciarSesion">IniciarSesion</a></p>
         </div>
     </form>
 </div>

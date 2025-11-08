@@ -1,0 +1,34 @@
+﻿@{
+    ViewData["Title"] = "Correo Enviado";
+}
+
+<style>
+    .registration-form {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 350px;
+        margin-top: 20px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+
+<div class="registration-form text-center">
+    <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Revisa tu Correo</h2>
+
+    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+
+    <p class="mt-4">
+        Si una cuenta coincide con la dirección de correo electrónico proporcionada,
+        recibirás un email con instrucciones para restablecer tu contraseña.
+    </p>
+    <p class="text-muted small">
+        (Si no lo ves, revisa tu carpeta de spam).
+    </p>
+
+    <div class="d-grid mt-4">
+        <a asp-action="IniciarSesion" class="btn btn-outline-primary">Volver a Iniciar Sesión</a>
+    </div>
+</div>

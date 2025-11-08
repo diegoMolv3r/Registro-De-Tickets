@@ -3,17 +3,33 @@ using RegistroDeTickets.Service;
 using Microsoft.EntityFrameworkCore;
 using RegistroDeTickets.Repository;
 using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using DotNetEnv;
+
+Env.Load();
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("EFCoreContext");
+
+var googleClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
+var googleClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET");
+var connectionString = Environment.GetEnvironmentVariable("BASE_DE_DATOS");
+
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
 builder.Services.AddDbContext<RegistroDeTicketsPw3Context>(options =>
     options.UseSqlServer(connectionString));
 
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IReporteService, ReporteService>();
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
@@ -21,8 +37,35 @@ builder.Services.AddScoped<ITelemetryService, TelemetryService>();
 
 // Agrego Application Insights para monitoreo y telemetria punto 5 del TP
 builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
+
+//jwt
+var key = builder.Configuration["Jwt:Key"];
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "RegistroDeTickets.Web",
+        ValidAudience = "RegistroDeTickets.Web",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+    };
+});
+
+builder.Services.AddSingleton(new TokenService(builder.Configuration["Jwt:Key"]));
+
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddTransient<IEmailService, EmailService>();
+
+builder.Services.AddScoped<
+    Microsoft.AspNetCore.Identity.IPasswordHasher<RegistroDeTickets.Data.Entidades.Usuario>,
+    Microsoft.AspNetCore.Identity.PasswordHasher<RegistroDeTickets.Data.Entidades.Usuario>
+>();
 
 var app = builder.Build();
 
@@ -45,6 +88,7 @@ app.UseHttpsRedirection(); // Implementar Https Redirection punto 6.3 del TP
 app.UseStaticFiles();
 app.UseRouting();
 
+app.UseAuthentication();//jwt
 app.UseAuthorization();
 
 app.MapStaticAssets();

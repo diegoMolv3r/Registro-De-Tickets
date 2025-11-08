@@ -30,9 +30,9 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         // COMPLETAR LOS SIGUIENTES METODOS DEL LADO DEL SERVICIO Y REPOSITORIO
-        public IActionResult EliminarUsuario(int id) 
-        {   
-            
+        public IActionResult EliminarUsuario(int id)
+        {
+
             _usuarioService.EliminarUsuario(_usuarioService.ObtenerUsuarioPorId(id));
             return RedirectToAction("ListarUsuarios");
         }
@@ -46,6 +46,16 @@ namespace RegistroDeTickets.web.Controllers
         {
             _usuarioService.DesignarUsuarioComoCliente(_usuarioService.ObtenerUsuarioPorId(id));
             return RedirectToAction("ListarUsuarios");
+        }
+
+        [HttpGet]
+        public IActionResult AsignarTecnicoATicket(int Id)
+        {
+            Ticket ticket = _ticketService.BuscarTicketPorId(Id);
+            List<Usuario> tecnicos = _usuarioService.ObtenerTecnicos();
+            ViewBag.Ticket = ticket;
+            ViewBag.Tecnicos = tecnicos;
+            return View();
         }
 
         [HttpGet]
@@ -75,5 +85,12 @@ namespace RegistroDeTickets.web.Controllers
         }
 
 
+          
+
+        [HttpPost]
+        public IActionResult AsignarTecnicoATicket(int idTecnico,int idTicket) {
+            _ticketService.AsignarTecnicoATicket(idTicket, idTecnico);
+            return RedirectToAction("Listar");
+        }
     }
 }

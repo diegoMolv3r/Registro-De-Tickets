@@ -30,4 +30,6 @@ public partial class Ticket
     public virtual Tecnico? IdTecnicoNavigation { get; set; }
 
     public virtual TicketPrioridad Prioridad { get; set; } = null!;
+
+    public virtual ICollection<ReporteTecnico> ReporteTecnicos { get; set; } = new List<ReporteTecnico>();
 }
