@@ -2,6 +2,7 @@
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
+using Usuario = RegistroDeTickets.Data.Entidades.Usuario;
 
 namespace RegistroDeTickets.web.Controllers
 {
@@ -75,7 +76,7 @@ namespace RegistroDeTickets.web.Controllers
             {
                 Username = usuarioVM.Username,
                 Email = usuarioVM.Email,
-                PasswordHash = usuarioVM.Contrasenia
+                PasswordHash = usuarioVM.PasswordHash
             };
 
             _usuarioService.AgregarUsuario(nuevoTecnico);

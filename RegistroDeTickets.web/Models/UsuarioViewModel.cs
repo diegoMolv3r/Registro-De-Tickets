@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+
 namespace RegistroDeTickets.web.Models
 {
     [MetadataType(typeof(LoginViewModel))]
