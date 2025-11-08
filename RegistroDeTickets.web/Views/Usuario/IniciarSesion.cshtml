@@ -21,9 +21,11 @@
     }
 </style>
 
-<div class="registration-form">
-    <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Iniciar Sesion</h2>
 
+<div class="registration-form">
+  
+    <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Iniciar Sesion</h2>
+   
     <form asp-action="IniciarSesion" method="post">
 
         <div class="input-group mb-3">
@@ -31,6 +33,14 @@
             <input asp-for="Email" type="text" class="form-control" id="email" placeholder="Email">
             
         </div>
+        
+        @{
+        if (TempData["MensajeErrorE"] != null)
+        {
+            <div class="alert alert-info">@TempData["MensajeErrorE"]</div>
+        }
+         }
+
         <div class="input-group mb-3">
             <span asp-validation-for="Email" class="text-danger"></span>
         </div>
@@ -41,8 +51,13 @@
             <button class="input-group-text" type="button" id="togglePassword">
                 <i class="bi bi-eye"></i>
             </button>
-            
         </div>
+        @{
+            if (TempData["MensajeErrorP"] != null)
+            {
+                <div class="alert alert-info">@TempData["MensajeErrorP"]</div>
+            }
+        }
         <div class="input-group mb-3">
             <span asp-validation-for="PasswordHash" class="text-danger"></span>
         </div>
@@ -72,7 +87,7 @@
          data-ux_mode="popup"
          data-login_uri="https://localhost:7243/Usuario/GoogleSignIn"
          data-callback="onGoogleSignIn"
-         data-auto_select="true">
+         data-auto_select="false">
     </div>
 
     <div class="g_id_signin"

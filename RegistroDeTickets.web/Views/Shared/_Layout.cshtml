@@ -87,12 +87,13 @@
 
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Usuario" asp-action="Registrar">Registrarse</a>
+                            <p class="nav-link text-light">@TempData["UsuarioE"]</p>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Usuario" asp-action="IniciarSesion">Iniciar Sesión</a>
+                            <a class="nav-link text-light" asp-area="" asp-controller="Usuario" asp-action="CerrarSesion">Cerrar sesión</a>
                         </li>
                     </ul>
+
                 </div>
             </div>
         </nav>
