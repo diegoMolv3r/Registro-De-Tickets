@@ -2,15 +2,22 @@ using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using Microsoft.EntityFrameworkCore;
 using RegistroDeTickets.Repository;
+using DotNetEnv;
+
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+var googleClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
+var googleClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET");
+var connectionString = Environment.GetEnvironmentVariable("BASE_DE_DATOS");
 
 if (!builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddUserSecrets<Program>();
 }
 
-var connectionString = builder.Configuration.GetConnectionString("EFCoreContext");
 builder.Services.AddDbContext<RegistroDeTicketsPw3Context>(options =>
     options.UseSqlServer(connectionString));
 

@@ -11,11 +11,14 @@ namespace RegistroDeTickets.Repository
         // READ
         List<Usuario> ObtenerUsuarios();
 
-        // UPDATE --> seria necesario implementar este metodo?
+        // UPDATE
         void EditarUsuario(Usuario usuario);
 
         // DELETE
         void EliminarUsuario(Usuario usuario);
+
+        // Buscar por email
+        Usuario BuscarPorEmail(string email);
 
         Usuario ObtenerUsuarioPorId(int id);
 
@@ -27,9 +30,15 @@ namespace RegistroDeTickets.Repository
 
         List<Usuario> ObtenerTecnicos();
     }
-    public class UsuarioRepository(RegistroDeTicketsPw3Context ctx) : IUsuarioRepository
+
+    public class UsuarioRepository : IUsuarioRepository
     {
-        private readonly RegistroDeTicketsPw3Context _ctx = ctx;
+        private readonly RegistroDeTicketsPw3Context _ctx;
+
+        public UsuarioRepository(RegistroDeTicketsPw3Context ctx)
+        {
+            _ctx = ctx;
+        }
 
         public void AgregarUsuario(Usuario usuario)
         {
@@ -68,6 +77,11 @@ namespace RegistroDeTickets.Repository
         {
             _ctx.Usuarios.Remove(usuario);
             _ctx.SaveChanges();
+        }
+
+        public Usuario BuscarPorEmail(string email)
+        {
+            return _ctx.Usuarios.FirstOrDefault(u => u.Email == email);
         }
 
         public Usuario BuscarUsuarioPorEmail(string email)
