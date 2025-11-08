@@ -2,15 +2,23 @@
 
 namespace RegistroDeTickets.web.Models
 {
+    [MetadataType(typeof(LoginViewModel))]
+    public partial class Usuario
+    {
+
+    }
     public class UsuarioViewModel
     {
-        // Falta agregar las validaciones que queramos
-        [Required]
-        public string Username { get; set; }
-        [Required]
+        [Required(ErrorMessage = "El username es obligatorio")]
+        [EmailAddress]
+        public string? Username { get; set; }
+
+        [Required(ErrorMessage = "El email es obligatorio")]
         [EmailAddress]
         public string Email { get; set; }
-        [Required]
-        public string Contrasenia { get; set; }
+
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        public string PasswordHash { get; set; }
+
     }
 }
