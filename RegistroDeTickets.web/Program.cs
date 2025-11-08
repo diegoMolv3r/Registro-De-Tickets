@@ -17,6 +17,7 @@ builder.Services.AddScoped<ITicketService, TicketService>();
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+builder.Services.AddScoped<ITelemetryService, TelemetryService>();
 
 // Agrego Application Insights para monitoreo y telemetria punto 5 del TP
 builder.Services.AddApplicationInsightsTelemetry();

@@ -10,13 +10,12 @@ namespace RegistroDeTickets.web.Controllers
     public class UsuarioController : Controller
     {
         private readonly IUsuarioService _usuarioService;
-        //private readonly ILogger<UsuarioController> _logger;
-        private readonly TelemetryClient _telemetryClient;
+        private readonly ITelemetryService _telemetryService;
 
-        public UsuarioController(IUsuarioService usuarioService, TelemetryClient telemetryClient)
+        public UsuarioController(IUsuarioService usuarioService, ITelemetryService telemetryService)
         {
             _usuarioService = usuarioService;
-            _telemetryClient = telemetryClient;
+            _telemetryService = telemetryService;
         }
 
 
@@ -39,7 +38,7 @@ namespace RegistroDeTickets.web.Controllers
                 Email = usuarioVM.Email,
                 PasswordHash = usuarioVM.Contrasenia
             });
-                return RedirectToAction("IniciarSesion");
+            return RedirectToAction("IniciarSesion");
         }
 
         [HttpGet]
@@ -55,29 +54,25 @@ namespace RegistroDeTickets.web.Controllers
             {
                 return View(usuario);
             }
-            var propiedades = new Dictionary<string, string>();
+            
             var usuarioEncontrado = _usuarioService.BuscarUsuarioPorEmail(usuario.Email);
 
             if (usuarioEncontrado == null)
-            { 
-                TempData["Mensaje"] = "Usuario Inexistente";
-                propiedades = new Dictionary<string, string>
             {
-                { "UsuarioId", "" },
-                { "MetodoLogin", "EmailYPassword" }
-            };
-                _telemetryClient.TrackEvent("InicioSesionFallidoPorEmail", propiedades);
+                TempData["Mensaje"] = "Usuario Inexistente";
+
+               
+                _telemetryService.RegistrarEvento("InicioSesionFallido", usuarioEncontrado);
                 return View(usuario);
             }
-                propiedades = new Dictionary<string, string>
-            {
-                { "UsuarioId", usuarioEncontrado.Id.ToString() },
-                { "MetodoLogin", "EmailYPassword" }
-            };
-            _telemetryClient.TrackEvent("InicioSesionExitoso", propiedades);
 
-            return RedirectToAction("Inicio","Home");
+            _telemetryService.RegistrarEvento("InicioSesionExitoso", usuarioEncontrado);
+
+            return RedirectToAction("Inicio", "Home");
         }
+
+       
+
         public IActionResult Listar()
         {
             return RedirectToAction("Registrar");
