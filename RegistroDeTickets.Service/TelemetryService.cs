@@ -30,12 +30,15 @@ namespace RegistroDeTickets.Service
                 propiedades.Add("UsuarioId", usuario.Id.ToString());
                 propiedades.Add("Email", usuario.Email);
                 propiedades.Add("Username", usuario.Username);
+                _telemetryClient.TrackEvent(nombreEvento, propiedades);
+                _telemetryClient.Flush();
             }
             else
             {
 
                 propiedades.Add("UsuarioId", "No existe");
                 _telemetryClient.TrackEvent(nombreEvento, propiedades);
+                _telemetryClient.Flush();
             }
 
             
