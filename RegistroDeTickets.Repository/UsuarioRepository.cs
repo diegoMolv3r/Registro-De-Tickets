@@ -58,6 +58,7 @@ namespace RegistroDeTickets.Repository
         public void EditarUsuario(Usuario usuario)
         {
             _ctx.Usuarios.Update(usuario);
+            _ctx.SaveChanges();
         }
 
         public void AgregarTecnico(Tecnico tecnico)

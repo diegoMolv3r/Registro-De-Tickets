@@ -1,0 +1,41 @@
+﻿@model RegistroDeTickets.web.Models.SolicitarRecuperacionViewModel
+
+@{
+    ViewData["Title"] = "Recuperar Contraseña";
+}
+<style>
+    .registration-form {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 350px;
+        margin-top: 75px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+<div class="registration-form">
+    <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Recuperar Contraseña</h2>
+    <p class="text-center text-muted small mb-3">
+        Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña.
+    </p>
+
+    <form asp-action="SolicitarRecuperacion" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+            <input asp-for="Email" class="form-control" placeholder="Tu correo electrónico" />
+        </div>
+        <span asp-validation-for="Email" class="text-danger small"></span>
+
+        <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary btn-block">Enviar enlace</button>
+        </div>
+
+        <div class="text-center mt-3">
+            <a asp-action="IniciarSesion" class="text-secondary small">Volver a Iniciar Sesión</a>
+        </div>
+    </form>
+</div>

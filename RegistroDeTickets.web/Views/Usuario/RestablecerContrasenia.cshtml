@@ -1,0 +1,46 @@
+﻿@model RegistroDeTickets.web.Models.RestablecerContraseniaViewModel
+
+@{
+    ViewData["Title"] = "Restablecer Contraseña";
+}
+
+<style>
+    .registration-form {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 350px;
+        margin-top: 75px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+
+<div class="registration-form">
+    <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Crear Nueva Contraseña</h2>
+
+    <form asp-action="RestablecerContrasenia" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <input type="hidden" asp-for="Email" />
+        <input type="hidden" asp-for="Token" />
+
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+            <input asp-for="NuevaContrasenia" class="form-control" placeholder="Nueva contraseña" />
+        </div>
+        <span asp-validation-for="NuevaContrasenia" class="text-danger small"></span>
+        <br />
+
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+            <input asp-for="ConfirmarContrasenia" class="form-control" placeholder="Confirmar contraseña" />
+        </div>
+        <span asp-validation-for="ConfirmarContrasenia" class="text-danger small"></span>
+
+        <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary btn-block">Actualizar Contraseña</button>
+        </div>
+    </form>
+</div>
