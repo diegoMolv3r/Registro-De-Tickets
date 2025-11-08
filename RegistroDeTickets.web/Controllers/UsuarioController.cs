@@ -55,7 +55,7 @@ namespace RegistroDeTickets.web.Controllers
                 return View(usuario);
             }
 
-            var usuarioEncontrado = _usuarioService.BuscarUsuarioPorEmail(usuario.Email);
+            var usuarioEncontrado = _usuarioService.BuscarPorEmail(usuario.Email);
 
             if (usuarioEncontrado == null)
             { 
