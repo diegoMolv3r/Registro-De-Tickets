@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RegistroDeTickets.Data.Entidades;
 
@@ -11,9 +12,11 @@ using RegistroDeTickets.Data.Entidades;
 namespace RegistroDeTickets.Data.Migrations
 {
     [DbContext(typeof(RegistroDeTicketsPw3Context))]
-    partial class RegistroDeTicketsPw3ContextModelSnapshot : ModelSnapshot
+    [Migration("20251108234709_V1_SchemaInicialConIdentity")]
+    partial class V1_SchemaInicialConIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

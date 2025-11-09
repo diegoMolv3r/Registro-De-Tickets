@@ -145,7 +145,7 @@ namespace RegistroDeTickets.Service
 
             var nuevoUsuario = new Usuario
             {
-                Username = primerNombre,
+                UserName = primerNombre,
                 Email = email,
                 PasswordHash = "", // Google gestiona la autenticación
                 Estado = "Activo"

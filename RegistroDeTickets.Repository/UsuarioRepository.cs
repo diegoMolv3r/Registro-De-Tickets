@@ -42,13 +42,13 @@ namespace RegistroDeTickets.Repository
 
         public void AgregarUsuario(Usuario usuario)
         {
-            _ctx.Usuarios.Add(usuario);
+            _ctx.Users.Add(usuario);
             _ctx.SaveChanges();
         }
 
         public List<Usuario> ObtenerUsuarios()
         {
-            return _ctx.Usuarios
+            return _ctx.Users
         .Include(u => u.Administrador)
         .Include(u => u.Tecnico)
         .Include(u => u.Cliente)
@@ -57,7 +57,7 @@ namespace RegistroDeTickets.Repository
 
         public void EditarUsuario(Usuario usuario)
         {
-            _ctx.Usuarios.Update(usuario);
+            _ctx.Users.Update(usuario);
             _ctx.SaveChanges();
         }
 
@@ -75,28 +75,28 @@ namespace RegistroDeTickets.Repository
 
         public void EliminarUsuario(Usuario usuario)
         {
-            _ctx.Usuarios.Remove(usuario);
+            _ctx.Users.Remove(usuario);
             _ctx.SaveChanges();
         }
 
         public Usuario BuscarPorEmail(string email)
         {
-            return _ctx.Usuarios.FirstOrDefault(u => u.Email == email);
+            return _ctx.Users.FirstOrDefault(u => u.Email == email);
         }
 
         public Usuario BuscarUsuarioPorEmail(string email)
         {
-            return _ctx.Usuarios.FirstOrDefault(u => u.Email == email);
+            return _ctx.Users.FirstOrDefault(u => u.Email == email);
         }
 
         public Usuario ObtenerUsuarioPorId(int id)
         {
-            return _ctx.Usuarios.FirstOrDefault(u => u.Id == id);
+            return _ctx.Users.FirstOrDefault(u => u.Id == id);
         }
 
         public List<Usuario> ObtenerTecnicos()
         { 
-            return _ctx.Usuarios
+            return _ctx.Users
                 .Include(u => u.Tecnico)
                 .Where(u => u.Tecnico != null)
                 .ToList();
