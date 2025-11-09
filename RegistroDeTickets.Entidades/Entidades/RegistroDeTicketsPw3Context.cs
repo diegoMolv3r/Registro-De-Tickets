@@ -141,19 +141,15 @@ public partial class RegistroDeTicketsPw3Context : DbContext
 
             entity.ToTable("Usuario");
 
-            entity.HasIndex(e => e.Id, "UQ__Usuario__3214EC061F12E25F").IsUnique();
+            entity.HasIndex(e => e.Id, "UQ__Usuario__3214EC062640E9E0").IsUnique();
 
-            entity.HasIndex(e => e.Username, "UQ__Usuario__536C85E49F5567F4").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Usuario__536C85E403F28E83").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Usuario__A9D1053482DE72A3").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Usuario__A9D105344E43EF9B").IsUnique();
 
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.Estado).HasMaxLength(20);
             entity.Property(e => e.Username).HasMaxLength(20);
-
-            entity.Property(e => e.TokenHashRecuperacion).HasColumnType("NVARCHAR(MAX)");
-
-            entity.Property(e => e.TokenHashRecuperacionExpiracion).HasColumnType("DATETIME2");
         });
 
         OnModelCreatingPartial(modelBuilder);
