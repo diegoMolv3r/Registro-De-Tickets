@@ -2,12 +2,14 @@ using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using Microsoft.EntityFrameworkCore;
 using RegistroDeTickets.Repository;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DotNetEnv;
 
 Env.Load();
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,10 @@ builder.Services.AddScoped<IReporteService, ReporteService>();
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+builder.Services.AddScoped<ITelemetryService, TelemetryService>();
+
+// Agrego Application Insights para monitoreo y telemetria punto 5 del TP
+builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
 
 //jwt

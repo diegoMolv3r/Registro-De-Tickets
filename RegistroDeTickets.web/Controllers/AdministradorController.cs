@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
+using RegistroDeTickets.web.Models;
+using Usuario = RegistroDeTickets.Data.Entidades.Usuario;
 
 namespace RegistroDeTickets.web.Controllers
 {
@@ -12,7 +14,7 @@ namespace RegistroDeTickets.web.Controllers
         {
             return View();
         }
-
+        [HttpGet]
         public IActionResult Listar()
         {
             return View(_ticketService.ObtenerTickets());
@@ -23,7 +25,7 @@ namespace RegistroDeTickets.web.Controllers
             _ticketService.EliminarTicket(ticket);
             return RedirectToAction("Listar");
         }
-
+        [HttpGet]
         public IActionResult ListarUsuarios() {
             return View(_usuarioService.ObtenerUsuarios());
         }
@@ -52,11 +54,39 @@ namespace RegistroDeTickets.web.Controllers
         {
             Ticket ticket = _ticketService.BuscarTicketPorId(Id);
             List<Usuario> tecnicos = _usuarioService.ObtenerTecnicos();
-
             ViewBag.Ticket = ticket;
             ViewBag.Tecnicos = tecnicos;
             return View();
         }
+
+        [HttpGet]
+        public IActionResult RegistrarUsuarioTecnico() {
+            return View("RegistrarUsuarioTecnico");
+        }
+
+        [HttpPost]
+        public IActionResult RegistrarUsuarioTecnico(UsuarioViewModel usuarioVM)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(usuarioVM);
+            }
+
+            Usuario nuevoTecnico = new Usuario
+            {
+                Username = usuarioVM.Username,
+                Email = usuarioVM.Email,
+                PasswordHash = usuarioVM.PasswordHash
+            };
+
+            _usuarioService.AgregarUsuario(nuevoTecnico);
+            _usuarioService.DesignarUsuarioComoTecnico(nuevoTecnico);
+
+            return RedirectToAction("IniciarSesion", "Usuario");
+        }
+
+
+          
 
         [HttpPost]
         public IActionResult AsignarTecnicoATicket(int idTecnico,int idTicket) {

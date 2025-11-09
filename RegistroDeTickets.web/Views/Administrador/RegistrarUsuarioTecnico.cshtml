@@ -1,0 +1,82 @@
+﻿
+@{
+    ViewData["Title"] = "Registro de Nuevo Tecnico";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<style>
+    .registration-form {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        margin-top: 150px;
+    }
+</style>
+
+@model RegistroDeTickets.web.Models.UsuarioViewModel
+
+
+<div class="registration-form">
+    <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Registrarse</h2>
+    <form method="post">
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-person"></i></span>
+            <input asp-for="Username" type="text" class="form-control" id="username" placeholder="Nombre del tecnico" required>
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+            <input asp-for="Email" type="email" class="form-control" id="email" placeholder="Correo electrónico" required>
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+            <input asp-for="PasswordHash" type="password" class="form-control" id="PasswordHash" placeholder="Contraseña" required>
+            <button class="input-group-text" type="button" id="togglePassword">
+                <i class="bi bi-eye"></i>
+            </button>
+            <span asp-validation-for="PasswordHash" class="text-danger"></span>
+        </div>
+
+        <div class="input-group mb-4">
+            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+            <input type="password" class="form-control" id="confirmPassword" placeholder="Confirmar contraseña" required>
+            <button class="input-group-text" type="button" id="toggleConfirmPassword">
+                <i class="bi bi-eye"></i>
+            </button>
+        </div>
+
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-block">Crear Cuenta</button>
+        </div>
+
+        @*  NO SE SI ES NECESARIO QUE INICE SESION DESDE AQUI, SOLO IMPORTA REGISTRAR EL NUEVO TECNICO      
+    <div class="text-center mt-3">
+            <p class="text-info">¿Ya tienes una cuenta? <a asp-area="" asp-controller="Login" asp-action="IniciarSesion">Login</a></p>
+        </div> *@
+    </form>
+</div>
+
+<script>
+    const setupPasswordToggle = (toggleButtonId, passwordInputId) => {
+        const toggleButton = document.getElementById(toggleButtonId);
+        const passwordInput = document.getElementById(passwordInputId);
+        const eyeIcon = toggleButton.querySelector('i');
+
+        toggleButton.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            eyeIcon.classList.toggle('bi-eye');
+            eyeIcon.classList.toggle('bi-eye-slash');
+        });
+    };
+
+    setupPasswordToggle('togglePassword', 'password');
+    setupPasswordToggle('toggleConfirmPassword', 'confirmPassword');
+</script>

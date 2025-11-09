@@ -5,6 +5,8 @@ using Microsoft.SqlServer.Server;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.ApplicationInsights;
 using Microsoft.IdentityModel.Tokens;
 
 namespace RegistroDeTickets.web.Controllers
@@ -16,15 +18,17 @@ namespace RegistroDeTickets.web.Controllers
 
         //
         private readonly IUsuarioService _usuarioService;
+        private readonly ITelemetryService _telemetryService;
         private string UsuarioE;
 
         public readonly IEmailService _emailService;
 
-        public UsuarioController(IUsuarioService usuarioService, IEmailService emailService, TokenService tokenService)
+        public UsuarioController(IUsuarioService usuarioService, IEmailService emailService, TokenService tokenService, ITelemetryService telemetryService)
         {
             _usuarioService = usuarioService;
             _emailService = emailService;
             _tokenService = tokenService;
+            _telemetryService = telemetryService;
         }
 
 
@@ -48,7 +52,7 @@ namespace RegistroDeTickets.web.Controllers
                 PasswordHash = usuarioVM.PasswordHash,
                 Estado = "Activo"
             });
-                return RedirectToAction("IniciarSesion");
+            return RedirectToAction("IniciarSesion");
         }
 
         [HttpGet]
@@ -72,15 +76,18 @@ namespace RegistroDeTickets.web.Controllers
             if (usuarioEncontrado == null)
             { 
                 TempData["MensajeErrorE"] = "Usuario Inexistente";
+                _telemetryService.RegistrarEvento("InicioSesionFallidoPorEmail", usuarioEncontrado);
                 return View(usuario);
             }
 
             if (usuarioEncontrado.PasswordHash != usuario.PasswordHash)
             {
                 TempData["MensajeErrorP"] = "Contraseña incorrecta";
+                _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuarioEncontrado);
                 return View(usuario);
             }
 
+            _telemetryService.RegistrarEvento("InicioSesionExitoso", usuarioEncontrado);
 
 
             TempData["UsuarioE"] = usuarioEncontrado.Username;
