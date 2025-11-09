@@ -1,14 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
 
 namespace RegistroDeTickets.web.Controllers
 {
+    [Authorize(Roles = "Tecnico")]
     public class TecnicoController(ITicketService ticketService, IReporteService reporteService) : Controller
     {
         private readonly ITicketService _ticketService = ticketService;
         private readonly IReporteService _reporteService = reporteService;
+
+        public IActionResult Inicio()
+        {
+            return View();
+        }
 
         public IActionResult ListarTickets()
         {       
