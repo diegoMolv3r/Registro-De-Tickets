@@ -124,7 +124,7 @@ namespace RegistroDeTickets.web.Controllers
             {
                 return RedirectToAction("Inicio", "Administrador");
             }
-            return RedirectToAction("Inicio","Home");
+            return RedirectToAction("Inicio","Cliente");
         }
 
         [HttpGet]

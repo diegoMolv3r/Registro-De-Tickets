@@ -11,6 +11,11 @@ namespace RegistroDeTickets.web.Controllers
     {
         private readonly ITicketService _ticketService = ticketService;
 
+        public IActionResult Inicio()
+        {
+            return View();
+        }
+
         [HttpGet]
         public IActionResult Registrar()
         {
