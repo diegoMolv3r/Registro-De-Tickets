@@ -1,12 +1,17 @@
-using RegistroDeTickets.Data.Entidades; 
-using RegistroDeTickets.Service;
-using Microsoft.EntityFrameworkCore;
-using RegistroDeTickets.Repository;
+using DotNetEnv;
+using Google;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using RegistroDeTickets.Data.Entidades; 
+using RegistroDeTickets.Repository;
+using RegistroDeTickets.Service;
 using System.Text;
-using DotNetEnv;
+using Microsoft.Extensions.DependencyInjection;
+
 
 Env.Load();
 
@@ -24,8 +29,10 @@ if (!builder.Environment.IsDevelopment())
 }
 
 builder.Services.AddDbContext<RegistroDeTicketsPw3Context>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, b => b.MigrationsAssembly("RegistroDeTickets.Data")));
 
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<RegistroDeTicketsPw3Context>();
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
