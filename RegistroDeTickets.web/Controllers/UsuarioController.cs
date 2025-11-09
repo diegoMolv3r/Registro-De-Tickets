@@ -117,7 +117,13 @@ namespace RegistroDeTickets.web.Controllers
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.Now.AddHours(1)
             });
-
+            if (rolesDelUsuario.Contains("Tecnico")){
+                return RedirectToAction("Inicio", "Tecnico");
+            }
+            if (rolesDelUsuario.Contains("Admin"))
+            {
+                return RedirectToAction("Inicio", "Administrador");
+            }
             return RedirectToAction("Inicio","Home");
         }
 

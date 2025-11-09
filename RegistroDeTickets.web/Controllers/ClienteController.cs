@@ -6,6 +6,7 @@ using RegistroDeTickets.web.Models;
 
 namespace RegistroDeTickets.web.Controllers
 {
+    [Authorize(Roles = "Cliente")]
     public class ClienteController(ITicketService ticketService) : Controller
     {
         private readonly ITicketService _ticketService = ticketService;
