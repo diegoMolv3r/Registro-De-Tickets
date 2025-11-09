@@ -86,14 +86,14 @@ namespace RegistroDeTickets.web.Controllers
 
             if (usuarioEncontrado == null)
             { 
-                TempData["MensajeErrorE"] = "Usuario Inexistente";
+                TempData["MensajeErrorE"] = "Credenciales incorrectas. Intentalo nuevamente";
                 _telemetryService.RegistrarEvento("InicioSesionFallidoPorEmail", usuarioEncontrado);
                 return View(usuario);
             }
 
             if (usuarioEncontrado.PasswordHash != usuario.PasswordHash)
             {
-                TempData["MensajeErrorP"] = "Contraseña incorrecta";
+                TempData["MensajeErrorP"] = "Credenciales incorrectas. Intentalo nuevamente";
                 _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuarioEncontrado);
                 return View(usuario);
             }
