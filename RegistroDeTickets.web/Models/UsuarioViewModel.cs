@@ -11,7 +11,7 @@ namespace RegistroDeTickets.web.Models
     public class UsuarioViewModel
     {
         [Required(ErrorMessage = "El username es obligatorio")]
-        [EmailAddress]
+        [StringLength(20, MinimumLength = 3, ErrorMessage = "El username debe tener entre 3 y 20 caracteres")]
         public string? Username { get; set; }
 
         [Required(ErrorMessage = "El email es obligatorio")]

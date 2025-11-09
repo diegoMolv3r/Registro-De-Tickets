@@ -29,6 +29,10 @@ namespace RegistroDeTickets.Repository
         Usuario BuscarUsuarioPorEmail(string email);
 
         List<Usuario> ObtenerTecnicos();
+
+        List<Usuario> ObtenerTecnicosInactivos();
+
+        List<Usuario> ObtenerUsuariosInactivos();
     }
 
     public class UsuarioRepository : IUsuarioRepository
@@ -52,6 +56,7 @@ namespace RegistroDeTickets.Repository
         .Include(u => u.Administrador)
         .Include(u => u.Tecnico)
         .Include(u => u.Cliente)
+        .Where(u => u.Estado == "Activo")
         .ToList();
         }
 
@@ -75,8 +80,14 @@ namespace RegistroDeTickets.Repository
 
         public void EliminarUsuario(Usuario usuario)
         {
-            _ctx.Users.Remove(usuario);
-            _ctx.SaveChanges();
+            var usuarioEncontrado = _ctx.Users.Find(usuario.Id);
+            if (usuarioEncontrado != null)
+            {
+                usuarioEncontrado.Estado = "Inactivo";
+                _ctx.SaveChanges();
+            }
+
+
         }
 
         public Usuario BuscarPorEmail(string email)
@@ -95,10 +106,30 @@ namespace RegistroDeTickets.Repository
         }
 
         public List<Usuario> ObtenerTecnicos()
-        { 
+        {
+            return _ctx.Users
+            .Include(u => u.Tecnico)
+            .Where(u => u.Tecnico != null && u.Estado == "Activo")
+            .ToList();
+        }
+
+        // PARA OBTENER LOS INACTIVOS SI ES NECESARIO
+
+        public List<Usuario> ObtenerUsuariosInactivos()
+        {
+            return _ctx.Users
+                .Include(u => u.Administrador)
+                .Include(u => u.Tecnico)
+                .Include(u => u.Cliente)
+                .Where(u => u.Estado == "Inactivo") 
+                .ToList();
+        }
+
+        public List<Usuario> ObtenerTecnicosInactivos()
+        {
             return _ctx.Users
                 .Include(u => u.Tecnico)
-                .Where(u => u.Tecnico != null)
+                .Where(u => u.Tecnico != null && u.Estado == "Inactivo") 
                 .ToList();
         }
     }

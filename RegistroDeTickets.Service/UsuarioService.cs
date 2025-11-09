@@ -31,7 +31,6 @@ namespace RegistroDeTickets.Service
 
         void DesignarUsuarioComoTecnico(Usuario usuario);
 
-        void DesignarUsuarioComoCliente(Usuario usuario);
 
         List<Usuario> ObtenerTecnicos();
 
@@ -170,15 +169,7 @@ namespace RegistroDeTickets.Service
             }
         }
 
-        public void DesignarUsuarioComoCliente(Usuario usuario)
-        {
-            if (usuario.Cliente == null)
-            {
-                usuario.Cliente = new Cliente { IdNavigation = usuario };
-                _usuarioRepository.AgregarCliente(usuario.Cliente);
-                _usuarioRepository.EditarUsuario(usuario);
-            }
-        }
+     
 
         public List<Usuario> ObtenerTecnicos()
         {
