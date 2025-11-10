@@ -19,7 +19,7 @@ namespace RegistroDeTickets.Service
             _key = key;
         }
 
-        public string GenerateToken(string username, IList<string> roles, int Id)
+        public string GenerateToken(string username, IList<string> roles, int Id, IList<Claim> additionalClaims)
         {
             var claims = new List<Claim>
             {
@@ -31,6 +31,12 @@ namespace RegistroDeTickets.Service
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
             claims.Add(new Claim("Id", Id.ToString()));
+
+            if (additionalClaims != null && additionalClaims.Any())
+            {
+                claims.AddRange(additionalClaims);
+            }
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

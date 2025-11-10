@@ -76,6 +76,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("PuedeEliminar", policy =>
+    {
+        policy.RequireClaim("Permiso", "Acciones_de_Alto_Riesgo");
+    });
+});
+
 builder.Services.AddSingleton(new TokenService(builder.Configuration["Jwt:Key"]));
 
 

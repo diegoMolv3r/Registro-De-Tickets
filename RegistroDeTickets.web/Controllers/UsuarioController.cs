@@ -103,12 +103,15 @@ namespace RegistroDeTickets.web.Controllers
             // BUSCO EL ROL EN LA BASE DE DATOS
             var rolesDelUsuario = await _userManager.GetRolesAsync(usuarioEncontrado);
 
+            var claimsAdicionales = await _userManager.GetClaimsAsync(usuarioEncontrado);
+
             TempData["UsuarioE"] = usuarioEncontrado.UserName;
             //jwt 
             //var token = _tokenService.GenerateToken(usuarioEncontrado.UserName);
 
             // MODIFICO EL GENERATE TOKEN PARA QUE ACEPTE ROLES
-            var token = _tokenService.GenerateToken(usuarioEncontrado.UserName, rolesDelUsuario,usuarioEncontrado.Id);
+            var token = _tokenService.GenerateToken(usuarioEncontrado.UserName, rolesDelUsuario,usuarioEncontrado.Id,
+        claimsAdicionales);
             //cookie
             Response.Cookies.Append("jwt", token, new CookieOptions
             {
