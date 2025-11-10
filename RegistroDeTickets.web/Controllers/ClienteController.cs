@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
+using System.Security.Claims;
 
 namespace RegistroDeTickets.web.Controllers
 {

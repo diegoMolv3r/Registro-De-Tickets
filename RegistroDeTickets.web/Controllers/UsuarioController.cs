@@ -108,7 +108,7 @@ namespace RegistroDeTickets.web.Controllers
             //var token = _tokenService.GenerateToken(usuarioEncontrado.UserName);
 
             // MODIFICO EL GENERATE TOKEN PARA QUE ACEPTE ROLES
-            var token = _tokenService.GenerateToken(usuarioEncontrado.UserName, rolesDelUsuario);
+            var token = _tokenService.GenerateToken(usuarioEncontrado.UserName, rolesDelUsuario,usuarioEncontrado.Id);
             //cookie
             Response.Cookies.Append("jwt", token, new CookieOptions
             {
