@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
 using Usuario = RegistroDeTickets.Data.Entidades.Usuario;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RegistroDeTickets.web.Controllers
 {
@@ -25,6 +27,7 @@ namespace RegistroDeTickets.web.Controllers
             _ticketService.EliminarTicket(ticket);
             return RedirectToAction("Listar");
         }
+      
         [HttpGet]
         public IActionResult ListarUsuarios() {
             return View(_usuarioService.ObtenerUsuarios());
@@ -58,12 +61,17 @@ namespace RegistroDeTickets.web.Controllers
             ViewBag.Tecnicos = tecnicos;
             return View();
         }
-
+       
+        
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult RegistrarUsuarioTecnico() {
             return View("RegistrarUsuarioTecnico");
         }
 
+
+
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult RegistrarUsuarioTecnico(UsuarioViewModel usuarioVM)
         {
@@ -74,7 +82,7 @@ namespace RegistroDeTickets.web.Controllers
 
             Usuario nuevoTecnico = new Usuario
             {
-                Username = usuarioVM.Username,
+                UserName = usuarioVM.Username,
                 Email = usuarioVM.Email,
                 PasswordHash = usuarioVM.PasswordHash
             };

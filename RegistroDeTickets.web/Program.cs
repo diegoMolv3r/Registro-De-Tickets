@@ -1,12 +1,14 @@
-using RegistroDeTickets.Data.Entidades; 
-using RegistroDeTickets.Service;
-using Microsoft.EntityFrameworkCore;
-using RegistroDeTickets.Repository;
+using DotNetEnv;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using RegistroDeTickets.Data.Entidades; 
+using RegistroDeTickets.Repository;
+using RegistroDeTickets.Service;
+using System.Security.Claims;
 using System.Text;
-using DotNetEnv;
 
 Env.Load();
 
@@ -26,6 +28,10 @@ if (!builder.Environment.IsDevelopment())
 builder.Services.AddDbContext<RegistroDeTicketsPw3Context>(options =>
     options.UseSqlServer(connectionString));
 
+// Identity con soporte para roles 
+builder.Services.AddIdentityCore<Usuario>().AddRoles<IdentityRole<int>>() // Soporte para roles con clave 'int'
+.AddEntityFrameworkStores<RegistroDeTicketsPw3Context>();
+//
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
@@ -51,7 +57,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateIssuerSigningKey = true,
         ValidIssuer = "RegistroDeTickets.Web",
         ValidAudience = "RegistroDeTickets.Web",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+        RoleClaimType = ClaimTypes.Role // Configurar el tipo de reclamo para roles
+    };
+
+    // Para leer la cookie "jwt"
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var token = context.Request.Cookies["jwt"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        }
     };
 });
 

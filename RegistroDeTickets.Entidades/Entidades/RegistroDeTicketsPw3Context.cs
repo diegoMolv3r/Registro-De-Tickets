@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 
 namespace RegistroDeTickets.Data.Entidades;
 
-public partial class RegistroDeTicketsPw3Context : DbContext
+public partial class RegistroDeTicketsPw3Context : IdentityDbContext<Usuario, IdentityRole<int>, int>
 {
     public RegistroDeTicketsPw3Context()
     {
@@ -28,8 +30,8 @@ public partial class RegistroDeTicketsPw3Context : DbContext
     public virtual DbSet<TicketEstado> TicketEstados { get; set; }
 
     public virtual DbSet<TicketPrioridad> TicketPrioridads { get; set; }
-
-    public virtual DbSet<Usuario> Usuarios { get; set; }
+    //Entity ya lo maneja
+    //public virtual DbSet<Usuario> Usuarios { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -37,6 +39,9 @@ public partial class RegistroDeTicketsPw3Context : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // 
+        base.OnModelCreating(modelBuilder);
+        //
         modelBuilder.Entity<Administrador>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Admin");
@@ -135,7 +140,8 @@ public partial class RegistroDeTicketsPw3Context : DbContext
             entity.Property(e => e.Nombre).HasMaxLength(30);
         });
 
-        modelBuilder.Entity<Usuario>(entity =>
+        /* SE ELIMINA PARA USAR IDENTITY
+         * modelBuilder.Entity<Usuario>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_usuario");
 
@@ -151,7 +157,30 @@ public partial class RegistroDeTicketsPw3Context : DbContext
             entity.Property(e => e.Estado).HasMaxLength(20);
             entity.Property(e => e.Username).HasMaxLength(20);
         });
+        */
 
+        modelBuilder.Entity<Usuario>(entity =>
+        {
+            // Identity  usa la tabla existente 'Usuario'
+            entity.ToTable("Usuario");
+
+            // Se mapea la propiedad 'UserName' (con 'N') de Identity...
+            entity.Property(e => e.UserName)
+                  .HasMaxLength(20)
+                  .HasColumnName("Username"); // ...a tu columna 'Username' (con 'n')
+
+            // Recreamos el índice único sobre la *propiedad* correcta
+            entity.HasIndex(e => e.UserName).IsUnique();
+
+            // Mapeamos las propiedades heredadas (Email)
+            entity.Property(e => e.Email).HasMaxLength(255);
+            entity.HasIndex(e => e.Email).IsUnique();
+
+            // Mapeamos tus propiedades personalizadas (se quedan igual)
+            entity.Property(e => e.Estado).HasMaxLength(20);
+            entity.Property(e => e.TokenHashRecuperacion).HasColumnType("NVARCHAR(MAX)");
+            entity.Property(e => e.TokenHashRecuperacionExpiracion).HasColumnType("DATETIME2");
+        });
         OnModelCreatingPartial(modelBuilder);
     }
 
