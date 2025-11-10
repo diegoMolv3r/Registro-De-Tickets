@@ -4,6 +4,7 @@ using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
 using System.Security.Claims;
+using System.Security.Principal;
 
 namespace RegistroDeTickets.web.Controllers
 {
@@ -33,7 +34,12 @@ namespace RegistroDeTickets.web.Controllers
         [HttpGet]
         public IActionResult VerTicket(int Id)
         {
-            ViewBag.Ticket = _ticketService.BuscarTicketPorIdConReporte(Id);
+            Ticket ticketBuscado = _ticketService.BuscarTicketPorIdConReporte(Id);
+            if (ticketBuscado.IdTecnico != Int32.Parse((HttpContext.User.Identity as ClaimsIdentity).FindFirst("Id").Value)){
+                return RedirectToAction("Inicio", "Tecnico");
+            }
+
+            ViewBag.Ticket = ticketBuscado;
             return View();
         }
         [HttpPost]
