@@ -18,6 +18,7 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult Registrar()
         {
             return View();
@@ -43,6 +44,7 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult Listar()
         {
             int Id;

@@ -44,6 +44,7 @@ namespace RegistroDeTickets.web.Controllers
 
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult Registrar()
         {
             return View();
@@ -67,6 +68,7 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult IniciarSesion()
         {
             ViewBag.GoogleClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
@@ -131,6 +133,7 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult GoogleSignIn()
         {
             ViewBag.GoogleClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
@@ -189,6 +192,7 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult SolicitarRecuperacion()
         {
             return View();
@@ -270,12 +274,14 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult SolicitarRecuperacionConfirmacion()
         {
             return View();
         }
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult RestablecerContrasenia(string email, string token)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
