@@ -28,6 +28,7 @@ namespace RegistroDeTickets.web.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult Listar()
         {
             return View(_ticketService.ObtenerTickets());
@@ -44,6 +45,7 @@ namespace RegistroDeTickets.web.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult ListarUsuarios() {
             return View(_usuarioService.ObtenerUsuarios());
         }
@@ -66,6 +68,7 @@ namespace RegistroDeTickets.web.Controllers
        
         [Authorize(Roles = "Admin")]
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult AsignarTecnicoATicket(int Id)
         {
             Ticket ticket = _ticketService.BuscarTicketPorId(Id);
@@ -78,6 +81,7 @@ namespace RegistroDeTickets.web.Controllers
         
         [Authorize(Roles = "Admin")]
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult RegistrarUsuarioTecnico() {
             return View("RegistrarUsuarioTecnico");
         }
@@ -130,6 +134,7 @@ namespace RegistroDeTickets.web.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
+        //[HttpPost][ValidateAntiForgeryToken]
         public IActionResult AsignarTecnicoATicket(int idTecnico,int idTicket) {
             _ticketService.AsignarTecnicoATicket(idTicket, idTecnico);
             return RedirectToAction("Listar");

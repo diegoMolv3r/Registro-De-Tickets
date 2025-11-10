@@ -39,6 +39,7 @@
         <p>@ViewBag.Ticket.FechaCreacion</p>
         <p>@(ViewBag.Ticket.IdTecnico != null ? "Sí" : "No")</p>
         <form asp-action="AsignarTecnicoATicket" method="post">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="idTicket" value="@ViewBag.Ticket.Id" />
 
             <select id="tecnicoSelect" class="select-tecnico" name="idTecnico">

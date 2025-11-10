@@ -21,6 +21,7 @@
     
 
         <form asp-action="GenerarReporte" method="post">
+            @Html.AntiForgeryToken()
             <input id="IdTicket" type="hidden" name="idTicket" value="@ViewBag.Ticket.Id">
 
             <label for="descripcion"><strong>Nuevo reporte:</strong></label><br>

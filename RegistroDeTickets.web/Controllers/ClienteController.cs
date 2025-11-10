@@ -19,6 +19,7 @@ namespace RegistroDeTickets.web.Controllers
 
         [Authorize(Roles = "Cliente")]
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult Registrar()
         {
             return View();
@@ -44,6 +45,7 @@ namespace RegistroDeTickets.web.Controllers
         }
         [Authorize(Roles = "Cliente")]
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult Listar()
         {
             int Id;
