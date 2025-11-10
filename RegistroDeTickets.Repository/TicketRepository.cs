@@ -45,7 +45,7 @@ namespace RegistroDeTickets.Repository
 
         public List<Ticket> ObtenerTickets()
         {
-            return ctx.Tickets.ToList();
+            return ctx.Tickets.Include(t=>t.Prioridad).Include(t=>t.Estado).ToList();
         }
         
         public List<Ticket> BuscarTicketsPorIdTecnico(int idTecnico)
