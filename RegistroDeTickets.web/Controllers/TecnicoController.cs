@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
+using System.Security.Claims;
+using System.Security.Principal;
 
 namespace RegistroDeTickets.web.Controllers
 {
@@ -18,14 +20,26 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         public IActionResult ListarTickets()
-        {       
-            return View(_ticketService.BuscarTicketsPorIdTecnico(3)); // Por ahora uso un tecnico fijo, luego se debe obtener el usuario logueado);
+        {
+            int Id;
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            IEnumerable<Claim> claims = identity.Claims;
+            // or
+            Id = Int32.Parse(identity.FindFirst("Id").Value);
+
+            return View(_ticketService.BuscarTicketsPorIdTecnico(Id)); // Por ahora uso un tecnico fijo, luego se debe obtener el usuario logueado);
         }
 
         [HttpGet]
         public IActionResult VerTicket(int Id)
         {
-            ViewBag.Ticket = _ticketService.BuscarTicketPorIdConReporte(Id);
+            Ticket ticketBuscado = _ticketService.BuscarTicketPorIdConReporte(Id);
+            if (ticketBuscado.IdTecnico != Int32.Parse((HttpContext.User.Identity as ClaimsIdentity).FindFirst("Id").Value)){
+                return RedirectToAction("Inicio", "Tecnico");
+            }
+
+            ViewBag.Ticket = ticketBuscado;
             return View();
         }
         [HttpPost]
