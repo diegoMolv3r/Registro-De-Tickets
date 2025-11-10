@@ -186,10 +186,11 @@ namespace RegistroDeTickets.web.Controllers
                     _telemetryService.RegistrarEvento("InicioSesionExitoso", usuarioEncontradoPorMail);
                                        
                     var rolesDelUsuario = await _userManager.GetRolesAsync(usuarioEncontradoPorMail);
+                    var claimsAdicionales = await _userManager.GetClaimsAsync(usuarioEncontradoPorMail);
 
                     TempData["UsuarioE"] = usuarioEncontradoPorMail.UserName;
-                                     
-                    var token = _tokenService.GenerateToken(usuarioEncontradoPorMail.UserName, rolesDelUsuario);
+                    /*usuarioEncontrado.UserName, rolesDelUsuario,usuarioEncontrado.Id,claimsAdicionales*/
+                    var token = _tokenService.GenerateToken(usuarioEncontradoPorMail.UserName, rolesDelUsuario, usuarioEncontradoPorMail.Id, claimsAdicionales);
                     
                     Response.Cookies.Append("jwt", token, new CookieOptions
                     {
@@ -226,10 +227,10 @@ namespace RegistroDeTickets.web.Controllers
                     _telemetryService.RegistrarEvento("InicioSesionExitoso", nuevoUsuario);
 
                     var rolesDelUsuario = await _userManager.GetRolesAsync(nuevoUsuario);
-
+                    var claimsAdicionales = await _userManager.GetClaimsAsync(nuevoUsuario);
                     TempData["UsuarioE"] = nuevoUsuario.UserName;
-
-                    var token = _tokenService.GenerateToken(nuevoUsuario.UserName, rolesDelUsuario);
+                    //var token = _tokenService.GenerateToken(usuarioEncontradoPorMail.UserName, rolesDelUsuario, usuarioEncontradoPorMail.Id, claimsAdicionales);
+                    var token = _tokenService.GenerateToken(nuevoUsuario.UserName, rolesDelUsuario, nuevoUsuario.Id, claimsAdicionales);
 
                     Response.Cookies.Append("jwt", token, new CookieOptions
                     {

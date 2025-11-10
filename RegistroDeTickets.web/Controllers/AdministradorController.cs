@@ -33,10 +33,10 @@ namespace RegistroDeTickets.web.Controllers
         {
             return View(_ticketService.ObtenerTickets());
         }
-        //[Authorize(Roles = "Admin")]
-        [HttpGet]
 
+        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = "PuedeEliminar")]
+        [HttpGet]
         public IActionResult EliminarTicket(Ticket ticket)
         {
             _ticketService.EliminarTicket(ticket);
@@ -50,10 +50,9 @@ namespace RegistroDeTickets.web.Controllers
             return View(_usuarioService.ObtenerUsuarios());
         }
 
-        //[Authorize(Roles = "Admin")]
+       // [Authorize(Roles = "Admin")]
         [Authorize(Policy = "PuedeEliminar")]
         [HttpGet]
-
         public IActionResult EliminarUsuario(int id)
         {
             int idAdminActual = Int32.Parse((HttpContext.User.Identity as ClaimsIdentity).FindFirst("Id").Value);
@@ -69,9 +68,9 @@ namespace RegistroDeTickets.web.Controllers
         [Authorize(Roles = "Admin")]
         [HttpGet]
         [AutoValidateAntiforgeryToken]
-        public IActionResult AsignarTecnicoATicket(int Id)
+        public IActionResult AsignarTecnicoATicket(int id)
         {
-            Ticket ticket = _ticketService.BuscarTicketPorId(Id);
+            Ticket ticket = _ticketService.BuscarTicketPorId(id);
             List<Usuario> tecnicos = _usuarioService.ObtenerTecnicos();
             ViewBag.Ticket = ticket;
             ViewBag.Tecnicos = tecnicos;
@@ -133,8 +132,9 @@ namespace RegistroDeTickets.web.Controllers
 
 
         [Authorize(Roles = "Admin")]
-        [HttpGet]
-        //[HttpPost][ValidateAntiForgeryToken]
+        //[HttpGet]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult AsignarTecnicoATicket(int idTecnico,int idTicket) {
             _ticketService.AsignarTecnicoATicket(idTicket, idTecnico);
             return RedirectToAction("Listar");
