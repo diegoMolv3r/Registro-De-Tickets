@@ -85,7 +85,6 @@ namespace RegistroDeTickets.web.Controllers
         [HttpPost]
         public async Task<IActionResult> IniciarSesion(LoginViewModel usuario)
         {
-
             if (!ModelState.IsValid)
             {
                 return View(usuario);
@@ -94,47 +93,34 @@ namespace RegistroDeTickets.web.Controllers
             var usuarioEncontrado = _usuarioService.BuscarPorEmail(usuario.Email);
 
             if (usuarioEncontrado == null)
-            { 
-                TempData["MensajeErrorE"] = "Credenciales incorrectas. Intentalo nuevamente";
+            {
+                TempData["MensajeErrorE"] = "Credenciales incorrectas. Inténtalo nuevamente.";
                 _telemetryService.RegistrarEvento("InicioSesionFallidoPorEmail", usuarioEncontrado);
                 return View(usuario);
             }
 
             if (usuarioEncontrado.PasswordHash != usuario.PasswordHash)
             {
-                TempData["MensajeErrorP"] = "Credenciales incorrectas. Intentalo nuevamente";
+                TempData["MensajeErrorP"] = "Credenciales incorrectas. Inténtalo nuevamente.";
                 _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuarioEncontrado);
                 return View(usuario);
             }
 
             _telemetryService.RegistrarEvento("InicioSesionExitoso", usuarioEncontrado);
 
-            // GENERO EL TOKEN 2FA
-            var token2FA = await _userManager.GenerateTwoFactorTokenAsync(usuarioEncontrado, TokenOptions.DefaultEmailProvider);
-
-            // ENVIO EL EMAIL CON EL CODIGO
-            await _emailService.EnviarEmail(
-            usuarioEncontrado.Email,
-            "Código de verificación",
-            $"Tu código de acceso es: <b>{token2FA}</b>"
-            );
-
-            // ALMACENO EL ID DEL USUARIO EN LA SESION
-            TempData["TwoFactorUserId"] = usuarioEncontrado.Id;
-
             // BUSCO EL ROL EN LA BASE DE DATOS
             var rolesDelUsuario = await _userManager.GetRolesAsync(usuarioEncontrado);
-
             var claimsAdicionales = await _userManager.GetClaimsAsync(usuarioEncontrado);
 
-            TempData["UsuarioE"] = usuarioEncontrado.UserName;
-            //jwt 
-            //var token = _tokenService.GenerateToken(usuarioEncontrado.UserName);
+            // JWT
+            var token = _tokenService.GenerateToken(
+                usuarioEncontrado.UserName,
+                rolesDelUsuario,
+                usuarioEncontrado.Id,
+                claimsAdicionales
+            );
 
-            // MODIFICO EL GENERATE TOKEN PARA QUE ACEPTE ROLES
-            var token = _tokenService.GenerateToken(usuarioEncontrado.UserName, rolesDelUsuario,usuarioEncontrado.Id,
-        claimsAdicionales);
-            //cookie
+            // COOKIE
             Response.Cookies.Append("jwt", token, new CookieOptions
             {
                 HttpOnly = true,
@@ -143,16 +129,42 @@ namespace RegistroDeTickets.web.Controllers
                 Expires = DateTime.Now.AddHours(1)
             });
 
+            TempData["UsuarioE"] = usuarioEncontrado.UserName;
+
+            if (rolesDelUsuario.Contains("Cliente"))
+            {
+                // Generar token 2FA
+                var token2FA = await _userManager.GenerateTwoFactorTokenAsync(
+                    usuarioEncontrado,
+                    TokenOptions.DefaultEmailProvider
+                );
+
+                // Enviar el mail
+                await _emailService.EnviarEmail(
+                    usuarioEncontrado.Email,
+                    "Código de verificación",
+                    $"Tu código de acceso es: <b>{token2FA}</b>"
+                );
+
+                // Guardar temporalmente el usuario para el paso de verificación
+                TempData["TwoFactorUserId"] = usuarioEncontrado.Id;
+
+                return RedirectToAction("VerificarCodigo");
+            }
+
             if (rolesDelUsuario.Contains("Tecnico"))
             {
                 return RedirectToAction("Inicio", "Tecnico");
             }
+
             if (rolesDelUsuario.Contains("Admin"))
             {
                 return RedirectToAction("Inicio", "Administrador");
             }
-            return RedirectToAction("VerificarCodigo");
+
+            return RedirectToAction("IniciarSesion");
         }
+
 
         [HttpGet]
         public IActionResult GoogleSignIn()
