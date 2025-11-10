@@ -21,6 +21,7 @@
     <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Crear Nueva Contraseña</h2>
 
     <form asp-action="RestablecerContrasenia" method="post">
+        @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
         <input type="hidden" asp-for="Email" />

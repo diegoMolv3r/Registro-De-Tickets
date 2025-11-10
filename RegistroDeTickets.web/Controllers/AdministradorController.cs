@@ -81,7 +81,7 @@ namespace RegistroDeTickets.web.Controllers
 
 
         [Authorize(Roles = "Admin")]
-        [HttpPost]
+        [HttpPost][ValidateAntiForgeryToken]
         public IActionResult RegistrarUsuarioTecnico(UsuarioViewModel usuarioVM)
         {
             if (!ModelState.IsValid)
@@ -102,10 +102,7 @@ namespace RegistroDeTickets.web.Controllers
             return RedirectToAction("IniciarSesion", "Usuario");
         }
 
-
-          
-
-        [HttpPost]
+        [HttpPost][ValidateAntiForgeryToken]
         public IActionResult AsignarTecnicoATicket(int idTecnico,int idTicket) {
             _ticketService.AsignarTecnicoATicket(idTicket, idTecnico);
             return RedirectToAction("Listar");

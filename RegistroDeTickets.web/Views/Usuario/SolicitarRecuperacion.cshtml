@@ -22,6 +22,7 @@
     </p>
 
     <form asp-action="SolicitarRecuperacion" method="post">
+        @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
 
         <div class="input-group mb-3">
