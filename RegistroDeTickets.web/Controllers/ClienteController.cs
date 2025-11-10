@@ -34,7 +34,7 @@ namespace RegistroDeTickets.web.Controllers
             });
             return RedirectToAction("Listar");
         }
-
+        [Authorize(Roles = "Cliente")]
         [HttpGet]
         public IActionResult Listar()
         {

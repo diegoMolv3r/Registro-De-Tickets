@@ -166,9 +166,27 @@ namespace RegistroDeTickets.web.Controllers
                         Audience = new[] { Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID") }
                     });
 
+                var usuarioEncontradoPorMail = _usuarioService.BuscarPorEmail(payload.Email);
+
                 // 1. VERIFICACIÓN DE EMAIL (Devuelve JSON)
-                if (_usuarioService.BuscarPorEmail(payload.Email) != null)
-                {
+                if (usuarioEncontradoPorMail != null)
+                {   
+                    _telemetryService.RegistrarEvento("InicioSesionExitoso", usuarioEncontradoPorMail);
+                                       
+                    var rolesDelUsuario = await _userManager.GetRolesAsync(usuarioEncontradoPorMail);
+
+                    TempData["UsuarioE"] = usuarioEncontradoPorMail.UserName;
+                                     
+                    var token = _tokenService.GenerateToken(usuarioEncontradoPorMail.UserName, rolesDelUsuario);
+                    
+                    Response.Cookies.Append("jwt", token, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.Now.AddHours(1)
+                    });
+
                     return Ok(new
                     {
                         success = true,
@@ -192,6 +210,22 @@ namespace RegistroDeTickets.web.Controllers
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(nuevoUsuario, "Cliente");
+
+                    _telemetryService.RegistrarEvento("InicioSesionExitoso", nuevoUsuario);
+
+                    var rolesDelUsuario = await _userManager.GetRolesAsync(nuevoUsuario);
+
+                    TempData["UsuarioE"] = nuevoUsuario.UserName;
+
+                    var token = _tokenService.GenerateToken(nuevoUsuario.UserName, rolesDelUsuario);
+
+                    Response.Cookies.Append("jwt", token, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.Now.AddHours(1)
+                    });
 
                     // 3. RESPUESTA DE ÉXITO (Devuelve JSON)
                     return Ok(new
