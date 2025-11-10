@@ -13,6 +13,7 @@ namespace RegistroDeTickets.Repository
         Ticket BuscarTicketPorIdConReporte(int id);
 
         List<Ticket> BuscarTicketsPorIdTecnico(int idTecnico);
+        List<Ticket> BuscarTicketsPorIdCliente(int idCliente);
     }
 
     public class TicketRepository : ITicketRepository
@@ -62,6 +63,13 @@ namespace RegistroDeTickets.Repository
                     .Include(t => t.ReporteTecnicos)
                     .First(t => t.Id == id);
 
+        }
+
+        public List<Ticket> BuscarTicketsPorIdCliente(int idCliente)
+        {
+            return ctx.Tickets
+                .Where(t => t.IdCliente == idCliente)
+                .ToList();
         }
     }
 }

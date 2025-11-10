@@ -45,7 +45,15 @@ namespace RegistroDeTickets.web.Controllers
         [HttpGet]
         public IActionResult Listar()
         {
-            return View(_ticketService.ObtenerTickets());
+            int Id;
+
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            IEnumerable<Claim> claims = identity.Claims;
+
+            Id = Int32.Parse(identity.FindFirst("Id").Value);
+
+            return View(_ticketService.BuscarTicketsPorIdCliente(Id));
         }
     }
 }
