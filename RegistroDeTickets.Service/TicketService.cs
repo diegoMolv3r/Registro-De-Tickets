@@ -21,7 +21,6 @@ namespace RegistroDeTickets.Service
 
         public void AgregarTicket(Ticket ticket)
         {
-            ticket.IdCliente = 1; // Por ahora asigno un usuario fijo, luego se debe obtener el usuario logueado
             _ticketRepository.AgregarTicket(ticket);
         }
 

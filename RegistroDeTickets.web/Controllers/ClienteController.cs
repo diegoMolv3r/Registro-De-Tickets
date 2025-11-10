@@ -36,7 +36,8 @@ namespace RegistroDeTickets.web.Controllers
             {
                 Motivo = ticketVM.Motivo,
                 PrioridadId = ticketVM.Prioridad,
-                Descripcion = ticketVM.Descripcion
+                Descripcion = ticketVM.Descripcion,
+                IdCliente = Int32.Parse((HttpContext.User.Identity as ClaimsIdentity).FindFirst("Id").Value)
             });
             return RedirectToAction("Listar");
         }
