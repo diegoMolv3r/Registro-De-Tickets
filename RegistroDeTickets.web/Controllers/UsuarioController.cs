@@ -27,10 +27,13 @@ namespace RegistroDeTickets.web.Controllers
         //
         private readonly UserManager<Usuario> _userManager;
         private readonly IPasswordHasher<Usuario> _passwordHasher;
+
+        private readonly SignInManager<Usuario> _signInManager;
+
         // LOS INYECTO AL CONSTRUCTOR
 
         public UsuarioController(IUsuarioService usuarioService, IEmailService emailService, TokenService tokenService, ITelemetryService telemetryService, UserManager<Usuario> userManager,
-        IPasswordHasher<Usuario> passwordHasher)
+        IPasswordHasher<Usuario> passwordHasher, SignInManager<Usuario> signInManager)
         {
             _usuarioService = usuarioService;
             _emailService = emailService;
@@ -39,6 +42,7 @@ namespace RegistroDeTickets.web.Controllers
             //
             _userManager = userManager;
             _passwordHasher = passwordHasher;
+            _signInManager = signInManager;
             //
         }
 
@@ -56,13 +60,18 @@ namespace RegistroDeTickets.web.Controllers
             {
                 return View(usuarioVM);
             }
-            _usuarioService.AgregarUsuario(new Data.Entidades.Usuario
+            var nuevoUsuario = new Data.Entidades.Usuario
             {
                 UserName = usuarioVM.Username,
                 Email = usuarioVM.Email,
                 PasswordHash = usuarioVM.PasswordHash,
                 Estado = "Activo"
-            });
+            };
+
+            _userManager.UpdateSecurityStampAsync(nuevoUsuario);
+            _userManager.SetTwoFactorEnabledAsync(nuevoUsuario, true);
+            _usuarioService.AgregarUsuario(nuevoUsuario);
+
             return RedirectToAction("IniciarSesion");
         }
 
@@ -100,6 +109,19 @@ namespace RegistroDeTickets.web.Controllers
 
             _telemetryService.RegistrarEvento("InicioSesionExitoso", usuarioEncontrado);
 
+            // GENERO EL TOKEN 2FA
+            var token2FA = await _userManager.GenerateTwoFactorTokenAsync(usuarioEncontrado, TokenOptions.DefaultEmailProvider);
+
+            // ENVIO EL EMAIL CON EL CODIGO
+            await _emailService.EnviarEmail(
+            usuarioEncontrado.Email,
+            "Código de verificación",
+            $"Tu código de acceso es: <b>{token2FA}</b>"
+            );
+
+            // ALMACENO EL ID DEL USUARIO EN LA SESION
+            TempData["TwoFactorUserId"] = usuarioEncontrado.Id;
+
             // BUSCO EL ROL EN LA BASE DE DATOS
             var rolesDelUsuario = await _userManager.GetRolesAsync(usuarioEncontrado);
 
@@ -120,14 +142,16 @@ namespace RegistroDeTickets.web.Controllers
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.Now.AddHours(1)
             });
-            if (rolesDelUsuario.Contains("Tecnico")){
+
+            if (rolesDelUsuario.Contains("Tecnico"))
+            {
                 return RedirectToAction("Inicio", "Tecnico");
             }
             if (rolesDelUsuario.Contains("Admin"))
             {
                 return RedirectToAction("Inicio", "Administrador");
             }
-            return RedirectToAction("Inicio","Cliente");
+            return RedirectToAction("VerificarCodigo");
         }
 
         [HttpGet]
@@ -215,6 +239,41 @@ namespace RegistroDeTickets.web.Controllers
 
             return RedirectToAction("SolicitarRecuperacionConfirmacion");
         }
+
+        [HttpGet]
+        public IActionResult VerificarCodigo()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerificarCodigo(string code)
+        {
+            var userId = TempData["TwoFactorUserId"]?.ToString();
+            if (userId == null)
+                return RedirectToAction("IniciarSesion");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return RedirectToAction("IniciarSesion");
+
+            var isValid = await _userManager.VerifyTwoFactorTokenAsync(
+                user,
+                TokenOptions.DefaultEmailProvider,
+                code
+            );
+
+            if (isValid)
+            {
+                await _signInManager.SignInAsync(user, isPersistent: false);
+
+                return RedirectToAction("Inicio", "Cliente");
+            }
+
+            ModelState.AddModelError("", "Código inválido o expirado.");
+            return View();
+        }
+
 
         private string GenerarLinkRecuperacion(string email, string token)
         {

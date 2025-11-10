@@ -30,8 +30,16 @@ builder.Services.AddDbContext<RegistroDeTicketsPw3Context>(options =>
 
 // Identity con soporte para roles 
 builder.Services.AddIdentityCore<Usuario>().AddRoles<IdentityRole<int>>() // Soporte para roles con clave 'int'
-.AddEntityFrameworkStores<RegistroDeTicketsPw3Context>();
-//
+.AddEntityFrameworkStores<RegistroDeTicketsPw3Context>()
+.AddDefaultTokenProviders();
+
+builder.Services.AddIdentity<Usuario, IdentityRole<int>>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+})
+.AddEntityFrameworkStores<RegistroDeTicketsPw3Context>()
+.AddDefaultTokenProviders();
+
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
