@@ -110,7 +110,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();//jwt
-app.UseAuthorization();
+app.UseAuthorization(); // Etiquetas Autorize
 
 app.MapStaticAssets();
 

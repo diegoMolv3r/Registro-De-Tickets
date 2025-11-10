@@ -86,14 +86,14 @@ namespace RegistroDeTickets.web.Controllers
 
             if (usuarioEncontrado == null)
             { 
-                TempData["MensajeErrorE"] = "Usuario Inexistente";
+                TempData["MensajeErrorE"] = "Credenciales incorrectas. Intentalo nuevamente";
                 _telemetryService.RegistrarEvento("InicioSesionFallidoPorEmail", usuarioEncontrado);
                 return View(usuario);
             }
 
             if (usuarioEncontrado.PasswordHash != usuario.PasswordHash)
             {
-                TempData["MensajeErrorP"] = "Contraseña incorrecta";
+                TempData["MensajeErrorP"] = "Credenciales incorrectas. Intentalo nuevamente";
                 _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuarioEncontrado);
                 return View(usuario);
             }
@@ -117,8 +117,14 @@ namespace RegistroDeTickets.web.Controllers
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.Now.AddHours(1)
             });
-
-            return RedirectToAction("Inicio","Home");
+            if (rolesDelUsuario.Contains("Tecnico")){
+                return RedirectToAction("Inicio", "Tecnico");
+            }
+            if (rolesDelUsuario.Contains("Admin"))
+            {
+                return RedirectToAction("Inicio", "Administrador");
+            }
+            return RedirectToAction("Inicio","Cliente");
         }
 
         [HttpGet]

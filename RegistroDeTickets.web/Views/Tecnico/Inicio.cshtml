@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+    ViewData["CSS"] = "Home/inicio.css";
+    Layout = "~/Views/Shared/_TecnicoLayout.cshtml";
+}
+
+<div class="hero-section-home">
+    <div class="container text-center">
+        <h1 class="display-4 hero-title">Bienvenido al Centro de Soporte</h1>
+        <p class="lead">Estamos aquí para ayudarte. Registra tu consulta o reclamo y un técnico se pondrá en contacto a la brevedad.</p>
+        <a asp-controller="Tecnico" asp-action="ListarTickets" class="btn btn-custom-primary btn-lg mt-3">Ver tus tickets asignados</a>
+    </div>
+</div>

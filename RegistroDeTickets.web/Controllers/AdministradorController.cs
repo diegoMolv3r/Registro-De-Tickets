@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace RegistroDeTickets.web.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdministradorController(ITicketService ticketService, IUsuarioService usuarioService) : Controller
     {
         private readonly ITicketService _ticketService = ticketService;
         private readonly IUsuarioService _usuarioService = usuarioService;
-        public IActionResult Index()
+        public IActionResult Inicio()
         {
             return View();
         }
