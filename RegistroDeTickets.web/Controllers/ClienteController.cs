@@ -10,12 +10,13 @@ namespace RegistroDeTickets.web.Controllers
     {
         private readonly ITicketService _ticketService = ticketService;
 
+        [Authorize(Roles = "Cliente")]
         [HttpGet]
         public IActionResult Registrar()
         {
             return View();
         }
-
+        [Authorize(Roles = "Cliente")]
         [HttpPost]
         [ValidateAntiForgeryToken] // Verificar si el token de autenticacion es válido, solo peticiones POST
         public IActionResult Registrar(TicketViewModel ticketVM)

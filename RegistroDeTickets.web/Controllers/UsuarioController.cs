@@ -163,19 +163,49 @@ namespace RegistroDeTickets.web.Controllers
                     data.Credential,
                     new GoogleJsonWebSignature.ValidationSettings
                     {
-                        Audience = new[]
-                        {
-                    Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")
-                        }
+                        Audience = new[] { Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID") }
                     });
 
-                _usuarioService.RegistrarUsuarioGoogle(payload.Email, payload.Name);
-
-                return Ok(new
+                // 1. VERIFICACIÓN DE EMAIL (Devuelve JSON)
+                if (_usuarioService.BuscarPorEmail(payload.Email) != null)
                 {
-                    success = true,
-                    redirectUrl = Url.Action("Inicio", "Home")
-                });
+                    return Ok(new
+                    {
+                        success = true,
+                        redirectUrl = Url.Action("Listar", "Cliente")
+                    });
+                }
+
+                string nombreUsuarioGoogle = _usuarioService.renombrarUsuarioGoogle(payload.Email, payload.Name);
+
+                var nuevoUsuario = new Usuario
+                {
+                    UserName = nombreUsuarioGoogle,
+                    Email = payload.Email,
+                    Estado = "Activo",
+                    Cliente = new Cliente()
+                };
+
+                // 2. CREACIÓN DE USUARIO (SIN PASSWORD)
+                IdentityResult result = await _userManager.CreateAsync(nuevoUsuario);
+
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(nuevoUsuario, "Cliente");
+
+                    // 3. RESPUESTA DE ÉXITO (Devuelve JSON)
+                    return Ok(new
+                    {
+                        success = true,
+                        redirectUrl = Url.Action("Listar", "Cliente")
+                    });
+                }
+                else
+                {
+                    // 4. RESPUESTA DE ERROR (Devuelve JSON)
+                    string errores = string.Join(" ", result.Errors.Select(e => e.Description));
+                    return BadRequest(new { success = false, message = errores });
+                }
             }
             catch (InvalidJwtException)
             {
@@ -186,8 +216,8 @@ namespace RegistroDeTickets.web.Controllers
                 return StatusCode(500, new { success = false, message = "Error interno del servidor", error = ex.Message });
             }
         }
-        
 
+       
         public IActionResult CerrarSesion()
         {
             Response.Cookies.Delete("jwt");
