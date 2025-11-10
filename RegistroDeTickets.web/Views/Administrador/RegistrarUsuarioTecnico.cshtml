@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Registro de Nuevo Tecnico";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
@@ -18,7 +17,13 @@
 
 @model RegistroDeTickets.web.Models.UsuarioViewModel
 
+@{
+    if (TempData["MensajeErrorE"] != null)
+    {
+        <div class="alert alert-info">@TempData["MensajeErrorE"]</div>
+    }
 
+}
 <div class="registration-form">
     <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Registrarse</h2>
     <form method="post">

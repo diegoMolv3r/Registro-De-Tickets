@@ -50,20 +50,43 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Registrar(UsuarioViewModel usuarioVM)
+        public async Task<IActionResult> Registrar(UsuarioViewModel usuarioVM)
         {
             if (!ModelState.IsValid)
             {
                 return View(usuarioVM);
             }
-            _usuarioService.AgregarUsuario(new Data.Entidades.Usuario
+
+            var nuevoUsuario = new Usuario
             {
                 UserName = usuarioVM.Username,
                 Email = usuarioVM.Email,
                 PasswordHash = usuarioVM.PasswordHash,
-                Estado = "Activo"
-            });
-            return RedirectToAction("IniciarSesion");
+                Estado = "Activo",
+                // PARA QUE FIGURE EN NUESTRA TABLA dbo.Cliente
+                Cliente = new Cliente()
+
+            };
+            //_usuarioService.AgregarUsuario(nuevoUsuario);
+            // AHORA SE UTILIZA 'CREATEASYNC' PARA AGREGAR USUARIOS-CLIENTES A LA BD 
+            IdentityResult result = await _userManager.CreateAsync(nuevoUsuario, usuarioVM.PasswordHash);
+
+            if (result.Succeeded)
+            {               
+                await _userManager.AddToRoleAsync(nuevoUsuario, "Cliente");
+                return RedirectToAction("IniciarSesion");
+            }
+            else
+            {
+                // Se juntan todos los errores en un solo string
+                string errores = string.Join(" ", result.Errors.Select(e => e.Description));
+
+                
+                TempData["MensajeErrorE"] = errores;
+
+               
+                return RedirectToAction("Registrar");
+            }
         }
 
         [HttpGet]
