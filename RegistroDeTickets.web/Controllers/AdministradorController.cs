@@ -1,20 +1,28 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
 using Usuario = RegistroDeTickets.Data.Entidades.Usuario;
+using System.Security.Claims;
 
 
 namespace RegistroDeTickets.web.Controllers
 {
+    [Authorize(Roles = "Admin")]
+   
     public class AdministradorController(ITicketService ticketService, IUsuarioService usuarioService, UserManager<Usuario> userManager) : Controller
     {
         private readonly ITicketService _ticketService = ticketService;
         private readonly IUsuarioService _usuarioService = usuarioService;
         private readonly UserManager<Usuario> _userManager = userManager;
+
+        public IActionResult Inicio()
+        {
+            return View();
+        }
+        
 
 
 
@@ -24,8 +32,10 @@ namespace RegistroDeTickets.web.Controllers
         {
             return View(_ticketService.ObtenerTickets());
         }
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
+
+        [Authorize(Policy = "PuedeEliminar")]
         public IActionResult EliminarTicket(Ticket ticket)
         {
             _ticketService.EliminarTicket(ticket);
@@ -38,10 +48,17 @@ namespace RegistroDeTickets.web.Controllers
             return View(_usuarioService.ObtenerUsuarios());
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
+        [Authorize(Policy = "PuedeEliminar")]
         [HttpGet]
+
         public IActionResult EliminarUsuario(int id)
         {
+            int idAdminActual = Int32.Parse((HttpContext.User.Identity as ClaimsIdentity).FindFirst("Id").Value);
+            if (id == idAdminActual)
+            {
+                return RedirectToAction("ListarUsuarios");
+            }
 
             _usuarioService.EliminarUsuario(_usuarioService.ObtenerUsuarioPorId(id));
             return RedirectToAction("ListarUsuarios");
