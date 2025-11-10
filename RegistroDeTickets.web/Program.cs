@@ -46,6 +46,11 @@ builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
 
 //jwt
+
+builder.Services.AddDataProtection();
+builder.Services.AddSingleton<TokenService>();
+
+
 var key = builder.Configuration["Jwt:Key"];
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -58,7 +63,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidIssuer = "RegistroDeTickets.Web",
         ValidAudience = "RegistroDeTickets.Web",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-        RoleClaimType = ClaimTypes.Role // Configurar el tipo de reclamo para roles
+        RoleClaimType = ClaimTypes.Role, // Configurar el tipo de reclamo para roles
+        ClockSkew = TimeSpan.Zero
     };
 
     // Para leer la cookie "jwt"
@@ -66,18 +72,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     {
         OnMessageReceived = context =>
         {
+            var tokenService = context.HttpContext.RequestServices.GetRequiredService<TokenService>();
             var token = context.Request.Cookies["jwt"];
             if (!string.IsNullOrEmpty(token))
             {
-                context.Token = token;
+                context.Token = tokenService.DecryptToken(token);
             }
             return Task.CompletedTask;
         }
     };
 });
-
-builder.Services.AddSingleton(new TokenService(builder.Configuration["Jwt:Key"]));
-
 
 builder.Services.AddControllersWithViews();
 

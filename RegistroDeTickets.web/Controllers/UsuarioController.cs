@@ -56,13 +56,24 @@ namespace RegistroDeTickets.web.Controllers
             {
                 return View(usuarioVM);
             }
-            _usuarioService.AgregarUsuario(new Data.Entidades.Usuario
+
+            var usuario = new Data.Entidades.Usuario
             {
                 UserName = usuarioVM.Username,
                 Email = usuarioVM.Email,
                 PasswordHash = usuarioVM.PasswordHash,
                 Estado = "Activo"
-            });
+            };
+
+            try
+            {
+                _usuarioService.AgregarUsuario(usuario);
+            }
+            catch(InvalidOperationException ex)
+            {
+                ModelState.AddModelError("Email",ex.Message);
+                return View(usuarioVM);
+            }
             return RedirectToAction("IniciarSesion");
         }
 
@@ -116,6 +127,7 @@ namespace RegistroDeTickets.web.Controllers
 
             // MODIFICO EL GENERATE TOKEN PARA QUE ACEPTE ROLES
             var token = _tokenService.GenerateToken(usuarioEncontrado.UserName, rolesDelUsuario);
+            
             //cookie
             Response.Cookies.Append("jwt", token, new CookieOptions
             {
@@ -175,7 +187,10 @@ namespace RegistroDeTickets.web.Controllers
         public IActionResult CerrarSesion()
         {
             Response.Cookies.Delete("jwt");
-        
+            Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+            Response.Headers["Pragma"] = "no-cache";
+            Response.Headers["Expires"] = "0";
+
             return RedirectToAction("IniciarSesion", "Usuario");
 
         }

@@ -46,9 +46,20 @@ namespace RegistroDeTickets.Repository
 
         public void AgregarUsuario(Usuario usuario)
         {
+            if (usuario == null)
+                throw new ArgumentNullException(nameof(usuario));
+
+            var usuarioDuplicado = BuscarUsuarioPorEmail(usuario.Email);
+
+            if (usuarioDuplicado != null)
+            {
+                throw new InvalidOperationException("Ya existe un usuario con este correo.");
+            }
+
             _ctx.Users.Add(usuario);
             _ctx.SaveChanges();
         }
+
 
         public List<Usuario> ObtenerUsuarios()
         {
