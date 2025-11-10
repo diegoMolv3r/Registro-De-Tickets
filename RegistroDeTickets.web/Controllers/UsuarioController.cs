@@ -91,7 +91,14 @@ namespace RegistroDeTickets.web.Controllers
                 return View(usuario);
             }
 
-            if (usuarioEncontrado.PasswordHash != usuario.PasswordHash)
+            var resultadoVerificacion = _passwordHasher.VerifyHashedPassword(
+                usuarioEncontrado,
+                usuarioEncontrado.PasswordHash,
+                usuario.PasswordHash
+
+                );
+
+            if (resultadoVerificacion == PasswordVerificationResult.Failed)
             {
                 TempData["MensajeErrorP"] = "Contraseña incorrecta";
                 _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuarioEncontrado);
