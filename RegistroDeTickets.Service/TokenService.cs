@@ -22,8 +22,7 @@ namespace RegistroDeTickets.Service
             _protector = provider.CreateProtector("JwtTokenProtector");
         }
 
-
-        public string GenerateToken(string username, IList<string> roles)
+        public string GenerateToken(string username, IList<string> roles, int Id, IList<Claim> additionalClaims)
         {
             var claims = new List<Claim>
             {
@@ -33,6 +32,12 @@ namespace RegistroDeTickets.Service
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+            claims.Add(new Claim("Id", Id.ToString()));
+
+            if (additionalClaims != null && additionalClaims.Any())
+            {
+                claims.AddRange(additionalClaims);
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtkey));

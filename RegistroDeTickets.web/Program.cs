@@ -30,7 +30,12 @@ if (!builder.Environment.IsDevelopment())
 }
 
 builder.Services.AddDbContext<RegistroDeTicketsPw3Context>(options =>
+    options.UseSqlServer(connectionString));
+
+/* NO SE PORQUE ANI LO TIENE ASI 
+ builder.Services.AddDbContext<RegistroDeTicketsPw3Context>(options =>
     options.UseSqlServer(connectionString, b => b.MigrationsAssembly("RegistroDeTickets.Data")));
+ */
 
 builder.Services.AddIdentityCore<Usuario>().AddRoles<IdentityRole<int>>() // Soporte para roles con clave 'int'
 .AddEntityFrameworkStores<RegistroDeTicketsPw3Context>();
@@ -85,6 +90,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("PuedeEliminar", policy =>
+    {
+        policy.RequireClaim("Permiso", "Acciones_de_Alto_Riesgo");
+    });
+});
+
+builder.Services.AddSingleton(new TokenService(builder.Configuration["Jwt:Key"]));
+
+
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddTransient<IEmailService, EmailService>();
@@ -117,7 +133,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();//jwt
-app.UseAuthorization();
+app.UseAuthorization(); // Etiquetas Autorize
 
 app.MapStaticAssets();
 

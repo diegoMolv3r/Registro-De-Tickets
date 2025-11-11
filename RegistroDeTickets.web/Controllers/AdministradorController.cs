@@ -5,13 +5,19 @@ using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
 using Usuario = RegistroDeTickets.Data.Entidades.Usuario;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace RegistroDeTickets.web.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdministradorController(ITicketService ticketService, IUsuarioService usuarioService) : Controller
     {
         private readonly ITicketService _ticketService = ticketService;
         private readonly IUsuarioService _usuarioService = usuarioService;
+        public IActionResult Inicio()
+        {
+            return View();
+        }
         
 
        
@@ -22,8 +28,8 @@ namespace RegistroDeTickets.web.Controllers
         {
             return View(_ticketService.ObtenerTickets());
         }
-        [Authorize(Roles = "Admin")]
-        [HttpGet]
+
+        [Authorize(Policy = "PuedeEliminar")]
         public IActionResult EliminarTicket(Ticket ticket)
         {
             _ticketService.EliminarTicket(ticket);
@@ -36,10 +42,17 @@ namespace RegistroDeTickets.web.Controllers
             return View(_usuarioService.ObtenerUsuarios());
         }
 
-        [Authorize(Roles = "Admin")]
+        // COMPLETAR LOS SIGUIENTES METODOS DEL LADO DEL SERVICIO Y REPOSITORIO
+        [Authorize(Policy = "PuedeEliminar")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult EliminarUsuario(int id)
         {
+            int idAdminActual = Int32.Parse((HttpContext.User.Identity as ClaimsIdentity).FindFirst("Id").Value);
+            if (id == idAdminActual)
+            {
+                return RedirectToAction("ListarUsuarios");
+            }
 
             _usuarioService.EliminarUsuario(_usuarioService.ObtenerUsuarioPorId(id));
             return RedirectToAction("ListarUsuarios");

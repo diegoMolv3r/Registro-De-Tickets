@@ -3,12 +3,19 @@ using Microsoft.AspNetCore.Mvc;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
+using System.Security.Claims;
 
 namespace RegistroDeTickets.web.Controllers
 {
+    [Authorize(Roles = "Cliente")]
     public class ClienteController(ITicketService ticketService) : Controller
     {
         private readonly ITicketService _ticketService = ticketService;
+
+        public IActionResult Inicio()
+        {
+            return View();
+        }
 
         [HttpGet]
         public IActionResult Registrar()
@@ -29,7 +36,8 @@ namespace RegistroDeTickets.web.Controllers
             {
                 Motivo = ticketVM.Motivo,
                 PrioridadId = ticketVM.Prioridad,
-                Descripcion = ticketVM.Descripcion
+                Descripcion = ticketVM.Descripcion,
+                IdCliente = Int32.Parse((HttpContext.User.Identity as ClaimsIdentity).FindFirst("Id").Value)
             });
             return RedirectToAction("Listar");
         }
@@ -37,7 +45,15 @@ namespace RegistroDeTickets.web.Controllers
         [HttpGet]
         public IActionResult Listar()
         {
-            return View(_ticketService.ObtenerTickets());
+            int Id;
+
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            IEnumerable<Claim> claims = identity.Claims;
+
+            Id = Int32.Parse(identity.FindFirst("Id").Value);
+
+            return View(_ticketService.BuscarTicketsPorIdCliente(Id));
         }
     }
 }
