@@ -109,7 +109,8 @@ else
     app.UseDeveloperExceptionPage();
 }
 
-app.UseHttpsRedirection(); // Implementar Https Redirection punto 6.3 del TP
+app.UseHttpsRedirection(); 
+
 app.UseStaticFiles();
 app.UseRouting();
 

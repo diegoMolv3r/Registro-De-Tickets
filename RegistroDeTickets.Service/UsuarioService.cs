@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using RegistroDeTickets.Data.Entidades;
+﻿using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Repository;
 using System.Text;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Identity;
 
 namespace RegistroDeTickets.Service
 {
@@ -44,9 +44,6 @@ namespace RegistroDeTickets.Service
         private readonly IUsuarioRepository _usuarioRepository;
 
         private readonly IPasswordHasher<Usuario> _passwordHasher;
-
-        //private Usuario usuario;
-
 
         public UsuarioService(IUsuarioRepository usuarioRepository, IPasswordHasher<Usuario> passwordHasher)
         {

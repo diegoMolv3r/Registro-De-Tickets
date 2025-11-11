@@ -129,6 +129,8 @@ namespace RegistroDeTickets.web.Controllers
             var token = _tokenService.GenerateToken(usuarioEncontrado.UserName, rolesDelUsuario);
             
             //cookie
+
+
             Response.Cookies.Append("jwt", token, new CookieOptions
             {
                 HttpOnly = true,
