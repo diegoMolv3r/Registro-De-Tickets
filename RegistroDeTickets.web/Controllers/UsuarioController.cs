@@ -59,7 +59,7 @@ namespace RegistroDeTickets.web.Controllers
                 return View(usuarioVM);
             }
 
-            var usuario = new Data.Entidades.Usuario
+            var nuevoUsuario = new Data.Entidades.Usuario
             {
                 UserName = usuarioVM.Username,
                 Email = usuarioVM.Email,
