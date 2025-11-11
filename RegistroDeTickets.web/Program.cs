@@ -44,13 +44,11 @@ builder.Services.AddIdentityCore<Usuario>().AddRoles<IdentityRole<int>>() // Sop
 // Bloque de reemplazo -->
 builder.Services.AddIdentityCore<Usuario>(options =>
 {
-    // Política de Contraseña (AJUSTAR ESTO SEGÚN NECESITEN)
-    options.Password.RequireDigit = true;            // ¿Requiere un número? (SÍ por defecto)
-    options.Password.RequiredLength = 4;             // Mínimo de 4 caracteres (6 por defecto)
-    options.Password.RequireNonAlphanumeric = false; // ¿Requiere caracter especial? (NO en este ejemplo)
-    options.Password.RequireLowercase = false;       // ¿Requiere minúscula? (NO en este ejemplo)
-    options.Password.RequireUppercase = false;       // ¿Requiere mayúscula? (NO en este ejemplo)
-
+    options.Password.RequiredLength = 8;             
+    options.Password.RequireUppercase = true;      
+    options.Password.RequireDigit = true;            
+    options.Password.RequireNonAlphanumeric = true;  
+    options.Password.RequireLowercase = true;
 })
 .AddRoles<IdentityRole<int>>()
 .AddEntityFrameworkStores<RegistroDeTicketsPw3Context>();
