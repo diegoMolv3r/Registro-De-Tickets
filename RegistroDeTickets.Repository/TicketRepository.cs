@@ -27,7 +27,7 @@ namespace RegistroDeTickets.Repository
 
         public Ticket BuscarTicketPorId(int id) 
         {
-            return ctx.Tickets.Find(id);
+            return ctx.Tickets.Include(t => t.Estado).FirstOrDefault(t => t.Id == id);
         }
 
         public void EditarTicket(Ticket ticket)

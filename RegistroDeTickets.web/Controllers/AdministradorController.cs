@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
 using Usuario = RegistroDeTickets.Data.Entidades.Usuario;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RegistroDeTickets.web.Controllers
 {
@@ -10,45 +12,40 @@ namespace RegistroDeTickets.web.Controllers
     {
         private readonly ITicketService _ticketService = ticketService;
         private readonly IUsuarioService _usuarioService = usuarioService;
-        public IActionResult Index()
-        {
-            return View();
-        }
+        
+
+       
+
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Listar()
         {
             return View(_ticketService.ObtenerTickets());
         }
-
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
         public IActionResult EliminarTicket(Ticket ticket)
         {
             _ticketService.EliminarTicket(ticket);
             return RedirectToAction("Listar");
         }
+
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult ListarUsuarios() {
             return View(_usuarioService.ObtenerUsuarios());
         }
 
-        // COMPLETAR LOS SIGUIENTES METODOS DEL LADO DEL SERVICIO Y REPOSITORIO
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
         public IActionResult EliminarUsuario(int id)
         {
 
             _usuarioService.EliminarUsuario(_usuarioService.ObtenerUsuarioPorId(id));
             return RedirectToAction("ListarUsuarios");
         }
-
-        public IActionResult DesignarTecnico(int id) {
-            _usuarioService.DesignarUsuarioComoTecnico(_usuarioService.ObtenerUsuarioPorId(id));
-            return RedirectToAction("ListarUsuarios");
-        }
-
-        public IActionResult DesignarCliente(int id)
-        {
-            _usuarioService.DesignarUsuarioComoCliente(_usuarioService.ObtenerUsuarioPorId(id));
-            return RedirectToAction("ListarUsuarios");
-        }
-
+       
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult AsignarTecnicoATicket(int Id)
         {
@@ -58,12 +55,17 @@ namespace RegistroDeTickets.web.Controllers
             ViewBag.Tecnicos = tecnicos;
             return View();
         }
-
+       
+        
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult RegistrarUsuarioTecnico() {
             return View("RegistrarUsuarioTecnico");
         }
 
+
+
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult RegistrarUsuarioTecnico(UsuarioViewModel usuarioVM)
         {
@@ -74,21 +76,24 @@ namespace RegistroDeTickets.web.Controllers
 
             Usuario nuevoTecnico = new Usuario
             {
-                Username = usuarioVM.Username,
+                UserName = usuarioVM.Username,
                 Email = usuarioVM.Email,
-                PasswordHash = usuarioVM.PasswordHash
+                PasswordHash = usuarioVM.PasswordHash,
+                Estado = "Activo"
+
             };
 
             _usuarioService.AgregarUsuario(nuevoTecnico);
             _usuarioService.DesignarUsuarioComoTecnico(nuevoTecnico);
 
-            return RedirectToAction("IniciarSesion", "Usuario");
+            return RedirectToAction("ListarUsuarios");
         }
 
 
-          
 
-        [HttpPost]
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
         public IActionResult AsignarTecnicoATicket(int idTecnico,int idTicket) {
             _ticketService.AsignarTecnicoATicket(idTicket, idTecnico);
             return RedirectToAction("Listar");

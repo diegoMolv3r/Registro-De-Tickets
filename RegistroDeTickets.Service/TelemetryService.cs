@@ -29,7 +29,7 @@ namespace RegistroDeTickets.Service
             {
                 propiedades.Add("UsuarioId", usuario.Id.ToString());
                 propiedades.Add("Email", usuario.Email);
-                propiedades.Add("Username", usuario.Username);
+                propiedades.Add("Username", usuario.UserName);
                 _telemetryClient.TrackEvent(nombreEvento, propiedades);
                 _telemetryClient.Flush();
             }

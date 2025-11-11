@@ -8,6 +8,8 @@ using RegistroDeTickets.web.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.ApplicationInsights;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Identity;
+using Usuario = RegistroDeTickets.Data.Entidades.Usuario;
 
 namespace RegistroDeTickets.web.Controllers
 {
@@ -22,13 +24,22 @@ namespace RegistroDeTickets.web.Controllers
         private string UsuarioE;
 
         public readonly IEmailService _emailService;
+        //
+        private readonly UserManager<Usuario> _userManager;
+        private readonly IPasswordHasher<Usuario> _passwordHasher;
+        // LOS INYECTO AL CONSTRUCTOR
 
-        public UsuarioController(IUsuarioService usuarioService, IEmailService emailService, TokenService tokenService, ITelemetryService telemetryService)
+        public UsuarioController(IUsuarioService usuarioService, IEmailService emailService, TokenService tokenService, ITelemetryService telemetryService, UserManager<Usuario> userManager,
+        IPasswordHasher<Usuario> passwordHasher)
         {
             _usuarioService = usuarioService;
             _emailService = emailService;
             _tokenService = tokenService;
             _telemetryService = telemetryService;
+            //
+            _userManager = userManager;
+            _passwordHasher = passwordHasher;
+            //
         }
 
 
@@ -45,13 +56,24 @@ namespace RegistroDeTickets.web.Controllers
             {
                 return View(usuarioVM);
             }
-            _usuarioService.AgregarUsuario(new Data.Entidades.Usuario
+
+            var usuario = new Data.Entidades.Usuario
             {
-                Username = usuarioVM.Username,
+                UserName = usuarioVM.Username,
                 Email = usuarioVM.Email,
                 PasswordHash = usuarioVM.PasswordHash,
                 Estado = "Activo"
-            });
+            };
+
+            try
+            {
+                _usuarioService.AgregarUsuario(usuario);
+            }
+            catch(InvalidOperationException ex)
+            {
+                ModelState.AddModelError("Email",ex.Message);
+                return View(usuarioVM);
+            }
             return RedirectToAction("IniciarSesion");
         }
 
@@ -63,7 +85,7 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         [HttpPost]
-        public IActionResult IniciarSesion(LoginViewModel usuario)
+        public async Task<IActionResult> IniciarSesion(LoginViewModel usuario)
         {
 
             if (!ModelState.IsValid)
@@ -80,7 +102,14 @@ namespace RegistroDeTickets.web.Controllers
                 return View(usuario);
             }
 
-            if (usuarioEncontrado.PasswordHash != usuario.PasswordHash)
+            var resultadoVerificacion = _passwordHasher.VerifyHashedPassword(
+                usuarioEncontrado,
+                usuarioEncontrado.PasswordHash,
+                usuario.PasswordHash
+
+                );
+
+            if (resultadoVerificacion == PasswordVerificationResult.Failed)
             {
                 TempData["MensajeErrorP"] = "Contraseña incorrecta";
                 _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuarioEncontrado);
@@ -89,11 +118,19 @@ namespace RegistroDeTickets.web.Controllers
 
             _telemetryService.RegistrarEvento("InicioSesionExitoso", usuarioEncontrado);
 
+            // BUSCO EL ROL EN LA BASE DE DATOS
+            var rolesDelUsuario = await _userManager.GetRolesAsync(usuarioEncontrado);
 
-            TempData["UsuarioE"] = usuarioEncontrado.Username;
+            TempData["UsuarioE"] = usuarioEncontrado.UserName;
             //jwt 
-            var token = _tokenService.GenerateToken(usuarioEncontrado.Username);
+            //var token = _tokenService.GenerateToken(usuarioEncontrado.UserName);
+
+            // MODIFICO EL GENERATE TOKEN PARA QUE ACEPTE ROLES
+            var token = _tokenService.GenerateToken(usuarioEncontrado.UserName, rolesDelUsuario);
+            
             //cookie
+
+
             Response.Cookies.Append("jwt", token, new CookieOptions
             {
                 HttpOnly = true,
@@ -152,7 +189,10 @@ namespace RegistroDeTickets.web.Controllers
         public IActionResult CerrarSesion()
         {
             Response.Cookies.Delete("jwt");
-        
+            Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+            Response.Headers["Pragma"] = "no-cache";
+            Response.Headers["Expires"] = "0";
+
             return RedirectToAction("IniciarSesion", "Usuario");
 
         }

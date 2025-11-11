@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using RegistroDeTickets.Data.Entidades; 
 using RegistroDeTickets.Repository;
 using RegistroDeTickets.Service;
+using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -47,6 +48,11 @@ builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
 
 //jwt
+
+builder.Services.AddDataProtection();
+builder.Services.AddSingleton<TokenService>();
+
+
 var key = builder.Configuration["Jwt:Key"];
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -58,12 +64,26 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateIssuerSigningKey = true,
         ValidIssuer = "RegistroDeTickets.Web",
         ValidAudience = "RegistroDeTickets.Web",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+        RoleClaimType = ClaimTypes.Role, // Configurar el tipo de reclamo para roles
+        ClockSkew = TimeSpan.Zero
+    };
+
+    // Para leer la cookie "jwt"
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var tokenService = context.HttpContext.RequestServices.GetRequiredService<TokenService>();
+            var token = context.Request.Cookies["jwt"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                context.Token = tokenService.DecryptToken(token);
+            }
+            return Task.CompletedTask;
+        }
     };
 });
-
-builder.Services.AddSingleton(new TokenService(builder.Configuration["Jwt:Key"]));
-
 
 builder.Services.AddControllersWithViews();
 
@@ -91,7 +111,8 @@ else
     app.UseDeveloperExceptionPage();
 }
 
-app.UseHttpsRedirection(); // Implementar Https Redirection punto 6.3 del TP
+app.UseHttpsRedirection(); 
+
 app.UseStaticFiles();
 app.UseRouting();
 

@@ -1,6 +1,4 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿
 @{
 }
 <style>
@@ -33,7 +31,7 @@
     <div class="ticket">
         <h2>Ticket</h2>
         <p><strong>Cliente:</strong> @ViewBag.Ticket.IdCliente</p>
-        <p><strong>Estado:</strong> Abierto</p>
+        <p><strong>Estado:</strong> @ViewBag.Ticket.Estado.Nombre</p>
         <p><strong>Prioridad:</strong> @ViewBag.Ticket.PrioridadId</p>
         <p>@ViewBag.Ticket.Id</p>
         <p>@ViewBag.Ticket.Motivo</p>
@@ -46,7 +44,7 @@
             <select id="tecnicoSelect" class="select-tecnico" name="idTecnico">
                 @foreach (var tecnico in ViewBag.Tecnicos)
                 {
-                    <option value="@tecnico.Id">@tecnico.Username </option>
+                    <option value="@tecnico.Id">@tecnico.UserName </option>
                 }
             </select>
 

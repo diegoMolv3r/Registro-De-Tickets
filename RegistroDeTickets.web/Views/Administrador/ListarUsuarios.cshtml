@@ -88,14 +88,12 @@
                     @foreach (var usuario in Model)
                     {
                         <tr>
-                            <td>@usuario.Username</td>
+                            <td>@usuario.UserName</td>
                             <td>@usuario.Email</td>
                             <td>@(usuario.Administrador != null ? "Sí" : "No")</td>
                             <td>@(usuario.Tecnico != null ? "Sí" : "No")</td>
                             <td>@(usuario.Cliente != null ? "Sí" : "No")</td>
-                            <td class="text-center action-buttons">
-                                <a class="btn btn-primary btn-sm" asp-controller="Administrador" asp-action="DesignarTecnico" asp-route-id="@usuario.Id" title="Designar como tecnico"><i class="bi bi-pencil-fill"></i></a>
-                                <a class="btn btn-danger btn-sm" asp-controller="Administrador" asp-action="DesignarCliente" asp-route-id="@usuario.Id" title="Designar como cliente"><i class="bi bi-person-fill"></i></a>
+                            <td class="text-center action-buttons">                                
                                 <a class="btn btn-danger btn-sm" asp-controller="Administrador" asp-action="EliminarUsuario" asp-route-id="@usuario.Id" title="Eliminar usuario"><i class="bi bi-trash-fill"></i></a>
                             </td>
                         </tr>
