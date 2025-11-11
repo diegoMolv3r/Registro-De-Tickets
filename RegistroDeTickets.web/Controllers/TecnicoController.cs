@@ -32,6 +32,7 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult VerTicket(int Id)
         {
             Ticket ticketBuscado = _ticketService.BuscarTicketPorIdConReporte(Id);

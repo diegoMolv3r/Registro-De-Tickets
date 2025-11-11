@@ -1,35 +1,42 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
 using Usuario = RegistroDeTickets.Data.Entidades.Usuario;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+
 
 namespace RegistroDeTickets.web.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class AdministradorController(ITicketService ticketService, IUsuarioService usuarioService) : Controller
+   
+    public class AdministradorController(ITicketService ticketService, IUsuarioService usuarioService, UserManager<Usuario> userManager) : Controller
     {
         private readonly ITicketService _ticketService = ticketService;
         private readonly IUsuarioService _usuarioService = usuarioService;
+        private readonly UserManager<Usuario> _userManager = userManager;
+
         public IActionResult Inicio()
         {
             return View();
         }
         
 
-       
+
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult Listar()
         {
             return View(_ticketService.ObtenerTickets());
         }
 
+        
         [Authorize(Policy = "PuedeEliminar")]
+        [HttpGet]
         public IActionResult EliminarTicket(Ticket ticket)
         {
             _ticketService.EliminarTicket(ticket);
@@ -38,13 +45,13 @@ namespace RegistroDeTickets.web.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult ListarUsuarios() {
             return View(_usuarioService.ObtenerUsuarios());
         }
 
-        // COMPLETAR LOS SIGUIENTES METODOS DEL LADO DEL SERVICIO Y REPOSITORIO
+       
         [Authorize(Policy = "PuedeEliminar")]
-        //[Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult EliminarUsuario(int id)
         {
@@ -60,9 +67,10 @@ namespace RegistroDeTickets.web.Controllers
        
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public IActionResult AsignarTecnicoATicket(int Id)
+        [AutoValidateAntiforgeryToken]
+        public IActionResult AsignarTecnicoATicket(int id)
         {
-            Ticket ticket = _ticketService.BuscarTicketPorId(Id);
+            Ticket ticket = _ticketService.BuscarTicketPorId(id);
             List<Usuario> tecnicos = _usuarioService.ObtenerTecnicos();
             ViewBag.Ticket = ticket;
             ViewBag.Tecnicos = tecnicos;
@@ -72,6 +80,7 @@ namespace RegistroDeTickets.web.Controllers
         
         [Authorize(Roles = "Admin")]
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult RegistrarUsuarioTecnico() {
             return View("RegistrarUsuarioTecnico");
         }
@@ -80,7 +89,7 @@ namespace RegistroDeTickets.web.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public IActionResult RegistrarUsuarioTecnico(UsuarioViewModel usuarioVM)
+        public async Task<IActionResult> RegistrarUsuarioTecnico(UsuarioViewModel usuarioVM)
         {
             if (!ModelState.IsValid)
             {
@@ -92,21 +101,38 @@ namespace RegistroDeTickets.web.Controllers
                 UserName = usuarioVM.Username,
                 Email = usuarioVM.Email,
                 PasswordHash = usuarioVM.PasswordHash,
-                Estado = "Activo"
+                Estado = "Activo",
+                
+                Tecnico = new Tecnico()
 
             };
+            IdentityResult result = await _userManager.CreateAsync(nuevoTecnico, usuarioVM.PasswordHash);
 
-            _usuarioService.AgregarUsuario(nuevoTecnico);
-            _usuarioService.DesignarUsuarioComoTecnico(nuevoTecnico);
+            if (result.Succeeded)
+            {
+                
+                await _userManager.AddToRoleAsync(nuevoTecnico, "Tecnico");
+               
+                return RedirectToAction("ListarUsuarios");
+            }
+            else
+            {
+                
+                string errores = string.Join(" ", result.Errors.Select(e => e.Description));
 
-            return RedirectToAction("ListarUsuarios");
+                TempData["MensajeErrorE"] = errores;
+
+                return RedirectToAction("RegistrarUsuarioTecnico");
+            }
         }
 
 
 
 
         [Authorize(Roles = "Admin")]
-        [HttpGet]
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult AsignarTecnicoATicket(int idTecnico,int idTicket) {
             _ticketService.AsignarTecnicoATicket(idTicket, idTecnico);
             return RedirectToAction("Listar");

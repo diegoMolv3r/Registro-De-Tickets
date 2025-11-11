@@ -14,8 +14,8 @@
                         <th scope="col">Motivo</th>
                         <th scope="col">Prioridad</th>
                         <th scope="col">Descripción</th>
+                        <th scope="col">Estado</th>
                         <th scope="col">Fecha de Emisión</th>
-                        <th scope="col" class="text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -24,17 +24,11 @@
                         <tr>
                             <td>@ticket.Id</td>
                             <td>@ticket.Motivo</td>
-                            <td>@ticket.Prioridad</td>
+                            <td>@ticket.Prioridad.Nombre</td>
                             <td>@ticket.Descripcion</td>
-                            <td>@ticket.Estado</td> <!-- Hay que cambiar esto para que se muestre el string -->
-                            <td>@ticket.FechaCreacion.ToString()</td>
-                            <td class="text-center action-buttons">
-                                <a class="btn btn-primary btn-sm" asp-controller="Administrador" asp-action="Editar" asp-route-id="@ticket"><i class="bi bi-pencil-fill"></i></a>
-                                <a class="btn btn-danger btn-sm" asp-controller="Administrador" asp-action="Eliminar" asp-route-id="@ticket"><i class="bi bi-trash-fill"></i></a>
-                                <a class="btn btn-danger btn-sm" asp-controller="Administrador" asp-action="AsignarTecnico" asp-route-id="@ticket"><i class="bi bi-person-fill"></i></a>
-                    
-                       
-                            </td>
+                            <td>@ticket.Estado.Nombre</td> <!-- Hay que cambiar esto para que se muestre el string -->
+                            <td>@ticket.FechaCreacion?.ToString("dd/MM/yyyy")</td>
+
                         </tr>
                      }
                 </tbody>

@@ -28,7 +28,7 @@ namespace RegistroDeTickets.Repository
 
         public Ticket BuscarTicketPorId(int id) 
         {
-            return ctx.Tickets.Include(t => t.Estado).FirstOrDefault(t => t.Id == id);
+            return ctx.Tickets.Include(t => t.Estado).Include(t => t.Prioridad).Include(t => t.Estado).FirstOrDefault(t => t.Id == id);
         }
 
         public void EditarTicket(Ticket ticket)
@@ -46,13 +46,13 @@ namespace RegistroDeTickets.Repository
 
         public List<Ticket> ObtenerTickets()
         {
-            return ctx.Tickets.ToList();
+            return ctx.Tickets.Include(t=>t.Prioridad).Include(t=>t.Estado).ToList();
         }
         
         public List<Ticket> BuscarTicketsPorIdTecnico(int idTecnico)
         {
             return ctx.Tickets
-                .Where(t => t.IdTecnico == idTecnico)
+                .Where(t => t.IdTecnico == idTecnico).Include(t => t.Prioridad).Include(t => t.Estado)
                 .ToList();
         }
 
@@ -60,7 +60,7 @@ namespace RegistroDeTickets.Repository
         {
                
             return ctx.Tickets
-                    .Include(t => t.ReporteTecnicos)
+                    .Include(t => t.ReporteTecnicos).Include(t => t.Prioridad).Include(t => t.Estado)
                     .First(t => t.Id == id);
 
         }
@@ -68,7 +68,7 @@ namespace RegistroDeTickets.Repository
         public List<Ticket> BuscarTicketsPorIdCliente(int idCliente)
         {
             return ctx.Tickets
-                .Where(t => t.IdCliente == idCliente)
+                .Where(t => t.IdCliente == idCliente).Include(t => t.Prioridad).Include(t => t.Estado)
                 .ToList();
         }
     }

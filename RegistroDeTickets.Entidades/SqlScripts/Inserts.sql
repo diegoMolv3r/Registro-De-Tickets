@@ -23,3 +23,48 @@ GO
 INSERT INTO Tecnico (Id) 
 VALUES (3);
 GO
+
+
+DECLARE @NuevoUserId INT = 102;
+DECLARE @AdminRoleId INT = 1; 
+
+
+
+SET IDENTITY_INSERT Usuario ON;
+INSERT INTO Usuario (
+    Id, Username, Email, PasswordHash, Estado, 
+    NormalizedUserName, NormalizedEmail, EmailConfirmed, SecurityStamp, 
+    AccessFailedCount, LockoutEnabled, PhoneNumberConfirmed, TwoFactorEnabled
+) 
+VALUES
+(
+    @NuevoUserId, 
+    'super_admin', 
+    'superadmin@test.com', 
+    'hash_de_prueba_123', 
+    'Activo', 
+    'SUPER_ADMIN', 
+    'SUPERADMIN@TEST.COM', 
+    0, 
+    NEWID(), 
+    0, 
+    1, 
+    0, 
+    0
+);
+SET IDENTITY_INSERT Usuario OFF;
+
+
+INSERT INTO AspNetUserRoles (UserId, RoleId) 
+VALUES (@NuevoUserId, @AdminRoleId);
+
+
+INSERT INTO AspNetUserClaims (UserId, ClaimType, ClaimValue) 
+VALUES (
+    @NuevoUserId, 
+    'Permiso',        
+    'Acciones_de_Alto_Riesgo'
+);
+
+INSERT INTO Administrador (Id) VALUES (@NuevoUserId);
+GO

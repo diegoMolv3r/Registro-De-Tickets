@@ -35,7 +35,9 @@ namespace RegistroDeTickets.Service
         List<Usuario> ObtenerTecnicos();
 
         Usuario ObtenerUsuarioPorId(int id);
-        Usuario RegistrarUsuarioGoogle(string email, string nombreCompleto);
+        //Usuario RegistrarUsuarioGoogle(string email, string nombreCompleto);
+
+        string renombrarUsuarioGoogle(string email, string nombreCompleto);
 
     }
 
@@ -126,7 +128,7 @@ namespace RegistroDeTickets.Service
         {
             return _usuarioRepository.BuscarPorEmail(email);
         }
-
+        /*
         public Usuario RegistrarUsuarioGoogle(string email, string nombreCompleto)
         {
             var usuarioExistente = _usuarioRepository.BuscarPorEmail(email);
@@ -149,6 +151,12 @@ namespace RegistroDeTickets.Service
 
             _usuarioRepository.AgregarUsuario(nuevoUsuario);
             return nuevoUsuario;
+        }*/
+
+        public string renombrarUsuarioGoogle(string email, string nombreCompleto)
+        {
+           
+            return (nombreCompleto ?? email).Split(' ')[0]; ;
         }
 
         public Usuario ObtenerUsuarioPorId(int id)

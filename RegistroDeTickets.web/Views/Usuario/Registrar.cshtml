@@ -19,10 +19,16 @@
 </style>
 
 @model RegistroDeTickets.web.Models.UsuarioViewModel
-
+@{
+    if (TempData["MensajeErrorE"] != null)
+    {
+        <div class="alert alert-info">@TempData["MensajeErrorE"]</div>
+    }
+}
 <div class="registration-form">
     <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Registrarse</h2>
     <form method="post">
+        @Html.AntiForgeryToken()
         <div class="input-group mb-3">
             <span class="input-group-text"><i class="bi bi-person"></i></span>
             <input asp-for="Username" type="text" class="form-control" id="username" placeholder="Nombre de usuario">
