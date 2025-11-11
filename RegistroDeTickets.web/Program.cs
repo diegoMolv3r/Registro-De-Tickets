@@ -98,7 +98,7 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-builder.Services.AddSingleton(new TokenService(builder.Configuration["Jwt:Key"]));
+//uilder.Services.AddSingleton(new TokenService(builder.Configuration["Jwt:Key"]));
 
 
 builder.Services.AddControllersWithViews();
