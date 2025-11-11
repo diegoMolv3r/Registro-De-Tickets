@@ -19,11 +19,10 @@ namespace RegistroDeTickets.web.Models
         [EmailAddress(ErrorMessage = "Ingrese un email válido")]
         public string Email { get; set; }
 
-
-        //[Required(ErrorMessage = "La contraseña es obligatoria")]
-        //[StringLength(8, MinimumLength = 4, ErrorMessage = "La contraseña debe tener entre 4 y 8 caracteres")]
-        //[RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{4,8}$",
-        //ErrorMessage = "La contraseña debe tener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&)")]
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$",
+        ErrorMessage = "La contraseña debe tener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&)")]
         public string PasswordHash { get; set; }
 
     }
