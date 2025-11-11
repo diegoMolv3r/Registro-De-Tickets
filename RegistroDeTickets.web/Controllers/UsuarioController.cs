@@ -63,7 +63,7 @@ namespace RegistroDeTickets.web.Controllers
             {
                 UserName = usuarioVM.Username,
                 Email = usuarioVM.Email,
-                PasswordHash = usuarioVM.PasswordHash,
+                //PasswordHash = usuarioVM.PasswordHash,              Comente esto !!
                 Estado = "Activo",
                 // PARA QUE FIGURE EN NUESTRA TABLA dbo.Cliente
                 Cliente = new Cliente()

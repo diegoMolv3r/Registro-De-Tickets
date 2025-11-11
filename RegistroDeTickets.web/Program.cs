@@ -37,8 +37,27 @@ builder.Services.AddDbContext<RegistroDeTicketsPw3Context>(options =>
     options.UseSqlServer(connectionString, b => b.MigrationsAssembly("RegistroDeTickets.Data")));
  */
 
+/* Reemplazo esta linea por el bloque debajo (donde esta incluida esta configuracion que comenté)
 builder.Services.AddIdentityCore<Usuario>().AddRoles<IdentityRole<int>>() // Soporte para roles con clave 'int'
 .AddEntityFrameworkStores<RegistroDeTicketsPw3Context>();
+*/
+// Bloque de reemplazo -->
+builder.Services.AddIdentityCore<Usuario>(options =>
+{
+    // Política de Contraseña (AJUSTAR ESTO SEGÚN NECESITEN)
+    options.Password.RequireDigit = true;            // ¿Requiere un número? (SÍ por defecto)
+    options.Password.RequiredLength = 4;             // Mínimo de 4 caracteres (6 por defecto)
+    options.Password.RequireNonAlphanumeric = false; // ¿Requiere caracter especial? (NO en este ejemplo)
+    options.Password.RequireLowercase = false;       // ¿Requiere minúscula? (NO en este ejemplo)
+    options.Password.RequireUppercase = false;       // ¿Requiere mayúscula? (NO en este ejemplo)
+
+})
+.AddRoles<IdentityRole<int>>()
+.AddEntityFrameworkStores<RegistroDeTicketsPw3Context>();
+
+
+
+
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
