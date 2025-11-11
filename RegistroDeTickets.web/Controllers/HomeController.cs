@@ -14,12 +14,6 @@ namespace RegistroDeTickets.web.Controllers
             Response.Headers["Pragma"] = "no-cache";
             Response.Headers["Expires"] = "0";
 
-            //var token = Request.Cookies["jwt"];
-            //if (string.IsNullOrEmpty(token))
-            //{
-            //    return RedirectToAction("IniciarSesion", "Usuario");
-            //}
-
             return View();
         }
     }

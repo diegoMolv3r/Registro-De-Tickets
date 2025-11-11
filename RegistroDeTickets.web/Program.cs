@@ -32,8 +32,8 @@ if (!builder.Environment.IsDevelopment())
 builder.Services.AddDbContext<RegistroDeTicketsPw3Context>(options =>
     options.UseSqlServer(connectionString, b => b.MigrationsAssembly("RegistroDeTickets.Data")));
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<RegistroDeTicketsPw3Context>();
+builder.Services.AddIdentityCore<Usuario>().AddRoles<IdentityRole<int>>() // Soporte para roles con clave 'int'
+.AddEntityFrameworkStores<RegistroDeTicketsPw3Context>();
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
