@@ -1,14 +1,15 @@
 ﻿using Google.Apis.Auth;
+using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.SqlServer.Server;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
-using Microsoft.Extensions.Logging;
-using Microsoft.ApplicationInsights;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Identity;
+using Sprache;
 using Usuario = RegistroDeTickets.Data.Entidades.Usuario;
 
 namespace RegistroDeTickets.web.Controllers
@@ -115,8 +116,8 @@ namespace RegistroDeTickets.web.Controllers
                 _telemetryService.RegistrarEvento("InicioSesionFallidoPorEmail", usuarioEncontrado);
                 return View(usuario);
             }
-
-            if (usuarioEncontrado.PasswordHash != usuario.PasswordHash)
+            var compararPasswordConHash = _passwordHasher.VerifyHashedPassword(usuarioEncontrado, usuarioEncontrado.PasswordHash, usuario.PasswordHash);
+            if (compararPasswordConHash != PasswordVerificationResult.Success)
             {
                 TempData["MensajeErrorP"] = "Credenciales incorrectas. Intentalo nuevamente";
                 _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuarioEncontrado);
