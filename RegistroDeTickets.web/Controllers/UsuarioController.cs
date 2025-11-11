@@ -86,33 +86,30 @@ namespace RegistroDeTickets.web.Controllers
         public async Task<IActionResult> IniciarSesion(LoginViewModel usuario)
         {
             if (!ModelState.IsValid)
-            {
                 return View(usuario);
-            }
 
             var usuarioEncontrado = _usuarioService.BuscarPorEmail(usuario.Email);
 
             if (usuarioEncontrado == null)
             {
                 TempData["MensajeErrorE"] = "Credenciales incorrectas. Inténtalo nuevamente.";
-                _telemetryService.RegistrarEvento("InicioSesionFallidoPorEmail", usuarioEncontrado);
+                _telemetryService.RegistrarEvento("InicioSesionFallidoPorEmail", usuario.Email);
                 return View(usuario);
             }
 
             if (usuarioEncontrado.PasswordHash != usuario.PasswordHash)
             {
                 TempData["MensajeErrorP"] = "Credenciales incorrectas. Inténtalo nuevamente.";
-                _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuarioEncontrado);
+                _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuario.Email);
                 return View(usuario);
             }
 
-            _telemetryService.RegistrarEvento("InicioSesionExitoso", usuarioEncontrado);
+            _telemetryService.RegistrarEvento("InicioSesionExitoso", usuario.Email);
 
-            // BUSCO EL ROL EN LA BASE DE DATOS
             var rolesDelUsuario = await _userManager.GetRolesAsync(usuarioEncontrado);
             var claimsAdicionales = await _userManager.GetClaimsAsync(usuarioEncontrado);
 
-            // JWT
+            // Generar JWT
             var token = _tokenService.GenerateToken(
                 usuarioEncontrado.UserName,
                 rolesDelUsuario,
@@ -120,7 +117,6 @@ namespace RegistroDeTickets.web.Controllers
                 claimsAdicionales
             );
 
-            // COOKIE
             Response.Cookies.Append("jwt", token, new CookieOptions
             {
                 HttpOnly = true,
@@ -131,36 +127,38 @@ namespace RegistroDeTickets.web.Controllers
 
             TempData["UsuarioE"] = usuarioEncontrado.UserName;
 
+            // 🔹 Activar flujo de doble autenticación SOLO para clientes
             if (rolesDelUsuario.Contains("Cliente"))
             {
-                // Generar token 2FA
-                var token2FA = await _userManager.GenerateTwoFactorTokenAsync(
-                    usuarioEncontrado,
-                    TokenOptions.DefaultEmailProvider
-                );
+                try
+                {
+                    var token2FA = await _userManager.GenerateTwoFactorTokenAsync(
+                        usuarioEncontrado,
+                        TokenOptions.DefaultEmailProvider
+                    );
 
-                // Enviar el mail
-                await _emailService.EnviarEmail(
-                    usuarioEncontrado.Email,
-                    "Código de verificación",
-                    $"Tu código de acceso es: <b>{token2FA}</b>"
-                );
+                    await _emailService.EnviarEmail(
+                        usuarioEncontrado.Email,
+                        "Código de verificación",
+                        $"Tu código de acceso es: <b>{token2FA}</b>"
+                    );
 
-                // Guardar temporalmente el usuario para el paso de verificación
-                TempData["TwoFactorUserId"] = usuarioEncontrado.Id;
-
-                return RedirectToAction("VerificarCodigo");
+                    // ✅ Pasar el userId como parámetro en la URL (más confiable que TempData)
+                    return RedirectToAction("VerificarCodigo", new { userId = usuarioEncontrado.Id });
+                }
+                catch (Exception ex)
+                {
+                    TempData["MensajeError"] = "Error al enviar el código de verificación.";
+                    Console.WriteLine($"Error en envío de 2FA: {ex.Message}");
+                    return View(usuario);
+                }
             }
 
             if (rolesDelUsuario.Contains("Tecnico"))
-            {
                 return RedirectToAction("Inicio", "Tecnico");
-            }
 
             if (rolesDelUsuario.Contains("Admin"))
-            {
                 return RedirectToAction("Inicio", "Administrador");
-            }
 
             return RedirectToAction("IniciarSesion");
         }
@@ -253,16 +251,18 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         [HttpGet]
-        public IActionResult VerificarCodigo()
+        public IActionResult VerificarCodigo(string userId)
         {
-            return View();
+            if (string.IsNullOrEmpty(userId))
+                return RedirectToAction("IniciarSesion");
+
+            return View(model: userId);
         }
 
         [HttpPost]
-        public async Task<IActionResult> VerificarCodigo(string code)
+        public async Task<IActionResult> VerificarCodigo(string code, string userId)
         {
-            var userId = TempData["TwoFactorUserId"]?.ToString();
-            if (userId == null)
+            if (string.IsNullOrEmpty(userId))
                 return RedirectToAction("IniciarSesion");
 
             var user = await _userManager.FindByIdAsync(userId);
@@ -275,17 +275,16 @@ namespace RegistroDeTickets.web.Controllers
                 code
             );
 
-            if (isValid)
+            if (!isValid)
             {
-                await _signInManager.SignInAsync(user, isPersistent: false);
-
-                return RedirectToAction("Inicio", "Cliente");
+                ModelState.AddModelError("", "Código inválido o expirado.");
+                return View(model: userId); // volvemos a enviar el userId a la vista
             }
 
-            ModelState.AddModelError("", "Código inválido o expirado.");
-            return View();
-        }
+            await _signInManager.SignInAsync(user, isPersistent: false);
 
+            return RedirectToAction("Inicio", "Cliente");
+        }
 
         private string GenerarLinkRecuperacion(string email, string token)
         {
