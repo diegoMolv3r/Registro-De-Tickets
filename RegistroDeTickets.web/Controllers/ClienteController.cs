@@ -17,12 +17,14 @@ namespace RegistroDeTickets.web.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Cliente")]
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult Registrar()
         {
             return View();
         }
-
+        [Authorize(Roles = "Cliente")]
         [HttpPost]
         [ValidateAntiForgeryToken] // Verificar si el token de autenticacion es válido, solo peticiones POST
         public IActionResult Registrar(TicketViewModel ticketVM)
@@ -41,8 +43,9 @@ namespace RegistroDeTickets.web.Controllers
             });
             return RedirectToAction("Listar");
         }
-
+        [Authorize(Roles = "Cliente")]
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult Listar()
         {
             int Id;

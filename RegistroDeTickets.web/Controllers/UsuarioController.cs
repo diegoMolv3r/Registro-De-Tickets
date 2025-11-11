@@ -1,14 +1,15 @@
 ﻿using Google.Apis.Auth;
+using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.SqlServer.Server;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
-using Microsoft.Extensions.Logging;
-using Microsoft.ApplicationInsights;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Identity;
+using Sprache;
 using Usuario = RegistroDeTickets.Data.Entidades.Usuario;
 
 namespace RegistroDeTickets.web.Controllers
@@ -48,13 +49,14 @@ namespace RegistroDeTickets.web.Controllers
 
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult Registrar()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult Registrar(UsuarioViewModel usuarioVM)
+        public async Task<IActionResult> Registrar(UsuarioViewModel usuarioVM)
         {
             if (!ModelState.IsValid)
             {
@@ -65,17 +67,35 @@ namespace RegistroDeTickets.web.Controllers
                 UserName = usuarioVM.Username,
                 Email = usuarioVM.Email,
                 PasswordHash = usuarioVM.PasswordHash,
-                Estado = "Activo"
+                Estado = "Activo",
+                // PARA QUE FIGURE EN NUESTRA TABLA dbo.Cliente
+                Cliente = new Cliente()
+
             };
+            //_usuarioService.AgregarUsuario(nuevoUsuario);
+            // AHORA SE UTILIZA 'CREATEASYNC' PARA AGREGAR USUARIOS-CLIENTES A LA BD 
+            IdentityResult result = await _userManager.CreateAsync(nuevoUsuario, usuarioVM.PasswordHash);
 
-            _userManager.UpdateSecurityStampAsync(nuevoUsuario);
-            _userManager.SetTwoFactorEnabledAsync(nuevoUsuario, true);
-            _usuarioService.AgregarUsuario(nuevoUsuario);
+            if (result.Succeeded)
+            {               
+                await _userManager.AddToRoleAsync(nuevoUsuario, "Cliente");
+                return RedirectToAction("IniciarSesion");
+            }
+            else
+            {
+                // Se juntan todos los errores en un solo string
+                string errores = string.Join(" ", result.Errors.Select(e => e.Description));
 
-            return RedirectToAction("IniciarSesion");
+                
+                TempData["MensajeErrorE"] = errores;
+
+               
+                return RedirectToAction("Registrar");
+            }
         }
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult IniciarSesion()
         {
             ViewBag.GoogleClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
@@ -97,7 +117,14 @@ namespace RegistroDeTickets.web.Controllers
                 return View(usuario);
             }
 
-            if (usuarioEncontrado.PasswordHash != usuario.PasswordHash)
+            var resultadoVerificacion = _passwordHasher.VerifyHashedPassword(
+                usuarioEncontrado,
+                usuarioEncontrado.PasswordHash,
+                usuario.PasswordHash
+
+                );
+
+            if (resultadoVerificacion == PasswordVerificationResult.Failed)
             {
                 TempData["MensajeErrorP"] = "Credenciales incorrectas. Inténtalo nuevamente.";
                 _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuario.Email);
@@ -116,6 +143,12 @@ namespace RegistroDeTickets.web.Controllers
                 usuarioEncontrado.Id,
                 claimsAdicionales
             );
+
+            // MODIFICO EL GENERATE TOKEN PARA QUE ACEPTE ROLES
+            var token = _tokenService.GenerateToken(usuarioEncontrado.UserName, rolesDelUsuario,usuarioEncontrado.Id,
+        claimsAdicionales);
+            //cookie
+
 
             Response.Cookies.Append("jwt", token, new CookieOptions
             {
@@ -165,6 +198,7 @@ namespace RegistroDeTickets.web.Controllers
 
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult GoogleSignIn()
         {
             ViewBag.GoogleClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
@@ -183,19 +217,84 @@ namespace RegistroDeTickets.web.Controllers
                     data.Credential,
                     new GoogleJsonWebSignature.ValidationSettings
                     {
-                        Audience = new[]
-                        {
-                    Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")
-                        }
+                        Audience = new[] { Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID") }
                     });
 
-                _usuarioService.RegistrarUsuarioGoogle(payload.Email, payload.Name);
+                var usuarioEncontradoPorMail = _usuarioService.BuscarPorEmail(payload.Email);
 
-                return Ok(new
+                // 1. VERIFICACIÓN DE EMAIL (Devuelve JSON)
+                if (usuarioEncontradoPorMail != null)
+                {   
+                    _telemetryService.RegistrarEvento("InicioSesionExitoso", usuarioEncontradoPorMail);
+                                       
+                    var rolesDelUsuario = await _userManager.GetRolesAsync(usuarioEncontradoPorMail);
+                    var claimsAdicionales = await _userManager.GetClaimsAsync(usuarioEncontradoPorMail);
+
+                    TempData["UsuarioE"] = usuarioEncontradoPorMail.UserName;
+                    /*usuarioEncontrado.UserName, rolesDelUsuario,usuarioEncontrado.Id,claimsAdicionales*/
+                    var token = _tokenService.GenerateToken(usuarioEncontradoPorMail.UserName, rolesDelUsuario, usuarioEncontradoPorMail.Id, claimsAdicionales);
+                    
+                    Response.Cookies.Append("jwt", token, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.Now.AddHours(1)
+                    });
+
+                    return Ok(new
+                    {
+                        success = true,
+                        redirectUrl = Url.Action("Listar", "Cliente")
+                    });
+                }
+
+                string nombreUsuarioGoogle = _usuarioService.renombrarUsuarioGoogle(payload.Email, payload.Name);
+
+                var nuevoUsuario = new Usuario
                 {
-                    success = true,
-                    redirectUrl = Url.Action("Inicio", "Home")
-                });
+                    UserName = nombreUsuarioGoogle,
+                    Email = payload.Email,
+                    Estado = "Activo",
+                    Cliente = new Cliente()
+                };
+
+                // 2. CREACIÓN DE USUARIO (SIN PASSWORD)
+                IdentityResult result = await _userManager.CreateAsync(nuevoUsuario);
+
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(nuevoUsuario, "Cliente");
+
+                    _telemetryService.RegistrarEvento("InicioSesionExitoso", nuevoUsuario);
+
+                    var rolesDelUsuario = await _userManager.GetRolesAsync(nuevoUsuario);
+                    var claimsAdicionales = await _userManager.GetClaimsAsync(nuevoUsuario);
+                    TempData["UsuarioE"] = nuevoUsuario.UserName;
+                    //var token = _tokenService.GenerateToken(usuarioEncontradoPorMail.UserName, rolesDelUsuario, usuarioEncontradoPorMail.Id, claimsAdicionales);
+                    var token = _tokenService.GenerateToken(nuevoUsuario.UserName, rolesDelUsuario, nuevoUsuario.Id, claimsAdicionales);
+
+                    Response.Cookies.Append("jwt", token, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.Now.AddHours(1)
+                    });
+
+                    // 3. RESPUESTA DE ÉXITO (Devuelve JSON)
+                    return Ok(new
+                    {
+                        success = true,
+                        redirectUrl = Url.Action("Listar", "Cliente")
+                    });
+                }
+                else
+                {
+                    // 4. RESPUESTA DE ERROR (Devuelve JSON)
+                    string errores = string.Join(" ", result.Errors.Select(e => e.Description));
+                    return BadRequest(new { success = false, message = errores });
+                }
             }
             catch (InvalidJwtException)
             {
@@ -206,12 +305,15 @@ namespace RegistroDeTickets.web.Controllers
                 return StatusCode(500, new { success = false, message = "Error interno del servidor", error = ex.Message });
             }
         }
-        
 
+       
         public IActionResult CerrarSesion()
         {
             Response.Cookies.Delete("jwt");
-        
+            Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+            Response.Headers["Pragma"] = "no-cache";
+            Response.Headers["Expires"] = "0";
+
             return RedirectToAction("IniciarSesion", "Usuario");
 
         }
@@ -223,6 +325,7 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult SolicitarRecuperacion()
         {
             return View();
@@ -340,12 +443,14 @@ namespace RegistroDeTickets.web.Controllers
         }
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult SolicitarRecuperacionConfirmacion()
         {
             return View();
         }
 
         [HttpGet]
+        [AutoValidateAntiforgeryToken]
         public IActionResult RestablecerContrasenia(string email, string token)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))

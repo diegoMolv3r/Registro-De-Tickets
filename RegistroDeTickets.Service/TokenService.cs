@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,11 +14,12 @@ namespace RegistroDeTickets.Service
 {
     public  class TokenService
     {
-        private readonly string _key;
-
-        public TokenService(string key)
+        private readonly string _jwtkey;
+        private readonly IDataProtector _protector;
+        public TokenService(IConfiguration config,IDataProtectionProvider provider)
         {
-            _key = key;
+            _jwtkey = config["Jwt:Key"];
+            _protector = provider.CreateProtector("JwtTokenProtector");
         }
 
         public string GenerateToken(string username, IList<string> roles, int Id, IList<Claim> additionalClaims)
@@ -37,7 +40,7 @@ namespace RegistroDeTickets.Service
                 claims.AddRange(additionalClaims);
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtkey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
@@ -48,9 +51,21 @@ namespace RegistroDeTickets.Service
                 signingCredentials: creds
                 );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
+            return _protector.Protect(tokenString);
+        }
 
+        public string DecryptToken(string protectedToken)
+        {
+            try
+            {
+                return _protector.Unprotect(protectedToken);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
 

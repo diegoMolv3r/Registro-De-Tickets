@@ -27,7 +27,7 @@
     <h2 class="text-center mb-4 fw-bold" style="color: #0d6efd;">Iniciar Sesion</h2>
    
     <form asp-action="IniciarSesion" method="post">
-
+        @Html.AntiForgeryToken()
         <div class="input-group mb-3">
             <span class="input-group-text"><i class="bi bi-person"></i></span>
             <input asp-for="Email" type="text" class="form-control" id="email" placeholder="Email">

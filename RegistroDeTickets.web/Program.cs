@@ -1,7 +1,9 @@
 using DotNetEnv;
+using Google;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RegistroDeTickets.Data.Entidades; 
@@ -9,6 +11,8 @@ using RegistroDeTickets.Repository;
 using RegistroDeTickets.Service;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
+
 
 Env.Load();
 
@@ -28,7 +32,11 @@ if (!builder.Environment.IsDevelopment())
 builder.Services.AddDbContext<RegistroDeTicketsPw3Context>(options =>
     options.UseSqlServer(connectionString));
 
-// Identity con soporte para roles 
+/* NO SE PORQUE ANI LO TIENE ASI 
+ builder.Services.AddDbContext<RegistroDeTicketsPw3Context>(options =>
+    options.UseSqlServer(connectionString, b => b.MigrationsAssembly("RegistroDeTickets.Data")));
+ */
+
 builder.Services.AddIdentityCore<Usuario>().AddRoles<IdentityRole<int>>() // Soporte para roles con clave 'int'
 .AddEntityFrameworkStores<RegistroDeTicketsPw3Context>()
 .AddDefaultTokenProviders();
@@ -54,6 +62,11 @@ builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
 
 //jwt
+
+builder.Services.AddDataProtection();
+builder.Services.AddSingleton<TokenService>();
+
+
 var key = builder.Configuration["Jwt:Key"];
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -66,7 +79,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidIssuer = "RegistroDeTickets.Web",
         ValidAudience = "RegistroDeTickets.Web",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-        RoleClaimType = ClaimTypes.Role // Configurar el tipo de reclamo para roles
+        RoleClaimType = ClaimTypes.Role, // Configurar el tipo de reclamo para roles
+        ClockSkew = TimeSpan.Zero
     };
 
     // Para leer la cookie "jwt"
@@ -74,10 +88,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     {
         OnMessageReceived = context =>
         {
+            var tokenService = context.HttpContext.RequestServices.GetRequiredService<TokenService>();
             var token = context.Request.Cookies["jwt"];
             if (!string.IsNullOrEmpty(token))
             {
-                context.Token = token;
+                context.Token = tokenService.DecryptToken(token);
             }
             return Task.CompletedTask;
         }
@@ -92,7 +107,7 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-builder.Services.AddSingleton(new TokenService(builder.Configuration["Jwt:Key"]));
+//uilder.Services.AddSingleton(new TokenService(builder.Configuration["Jwt:Key"]));
 
 
 builder.Services.AddControllersWithViews();
@@ -121,7 +136,8 @@ else
     app.UseDeveloperExceptionPage();
 }
 
-app.UseHttpsRedirection(); // Implementar Https Redirection punto 6.3 del TP
+app.UseHttpsRedirection(); 
+
 app.UseStaticFiles();
 app.UseRouting();
 

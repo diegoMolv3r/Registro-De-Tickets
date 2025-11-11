@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using RegistroDeTickets.Data.Entidades;
+﻿using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Repository;
 using System.Text;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Identity;
 
 namespace RegistroDeTickets.Service
 {
@@ -31,7 +31,6 @@ namespace RegistroDeTickets.Service
 
         void DesignarUsuarioComoTecnico(Usuario usuario);
 
-        void DesignarUsuarioComoCliente(Usuario usuario);
 
         List<Usuario> ObtenerTecnicos();
 
@@ -45,9 +44,6 @@ namespace RegistroDeTickets.Service
         private readonly IUsuarioRepository _usuarioRepository;
 
         private readonly IPasswordHasher<Usuario> _passwordHasher;
-
-        //private Usuario usuario;
-
 
         public UsuarioService(IUsuarioRepository usuarioRepository, IPasswordHasher<Usuario> passwordHasher)
         {
@@ -130,7 +126,7 @@ namespace RegistroDeTickets.Service
         {
             return _usuarioRepository.BuscarPorEmail(email);
         }
-
+        /*
         public Usuario RegistrarUsuarioGoogle(string email, string nombreCompleto)
         {
             var usuarioExistente = _usuarioRepository.BuscarPorEmail(email);
@@ -153,6 +149,12 @@ namespace RegistroDeTickets.Service
 
             _usuarioRepository.AgregarUsuario(nuevoUsuario);
             return nuevoUsuario;
+        }*/
+
+        public string renombrarUsuarioGoogle(string email, string nombreCompleto)
+        {
+           
+            return (nombreCompleto ?? email).Split(' ')[0]; ;
         }
 
         public Usuario ObtenerUsuarioPorId(int id)
@@ -170,15 +172,7 @@ namespace RegistroDeTickets.Service
             }
         }
 
-        public void DesignarUsuarioComoCliente(Usuario usuario)
-        {
-            if (usuario.Cliente == null)
-            {
-                usuario.Cliente = new Cliente { IdNavigation = usuario };
-                _usuarioRepository.AgregarCliente(usuario.Cliente);
-                _usuarioRepository.EditarUsuario(usuario);
-            }
-        }
+     
 
         public List<Usuario> ObtenerTecnicos()
         {
