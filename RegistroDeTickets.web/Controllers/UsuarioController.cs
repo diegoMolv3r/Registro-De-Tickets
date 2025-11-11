@@ -113,7 +113,7 @@ namespace RegistroDeTickets.web.Controllers
             if (usuarioEncontrado == null)
             {
                 TempData["MensajeErrorE"] = "Credenciales incorrectas. Inténtalo nuevamente.";
-                _telemetryService.RegistrarEvento("InicioSesionFallidoPorEmail", usuario.Email);
+                _telemetryService.RegistrarEvento("InicioSesionFallidoPorEmail", usuarioEncontrado);
                 return View(usuario);
             }
 
@@ -127,22 +127,22 @@ namespace RegistroDeTickets.web.Controllers
             if (resultadoVerificacion == PasswordVerificationResult.Failed)
             {
                 TempData["MensajeErrorP"] = "Credenciales incorrectas. Inténtalo nuevamente.";
-                _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuario.Email);
+                _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuarioEncontrado);
                 return View(usuario);
             }
 
-            _telemetryService.RegistrarEvento("InicioSesionExitoso", usuario.Email);
+            _telemetryService.RegistrarEvento("InicioSesionExitoso", usuarioEncontrado);
 
             var rolesDelUsuario = await _userManager.GetRolesAsync(usuarioEncontrado);
             var claimsAdicionales = await _userManager.GetClaimsAsync(usuarioEncontrado);
 
             // Generar JWT
-            var token = _tokenService.GenerateToken(
+            /*var token = _tokenService.GenerateToken(
                 usuarioEncontrado.UserName,
                 rolesDelUsuario,
                 usuarioEncontrado.Id,
                 claimsAdicionales
-            );
+            );*/
 
             // MODIFICO EL GENERATE TOKEN PARA QUE ACEPTE ROLES
             var token = _tokenService.GenerateToken(usuarioEncontrado.UserName, rolesDelUsuario,usuarioEncontrado.Id,

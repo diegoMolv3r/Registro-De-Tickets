@@ -36,7 +36,9 @@ namespace RegistroDeTickets.Service
 
         Usuario ObtenerUsuarioPorId(int id);
 
-        Usuario RegistrarUsuarioGoogle(string email, string nombreCompleto);
+        //Usuario RegistrarUsuarioGoogle(string email, string nombreCompleto);
+
+        string renombrarUsuarioGoogle(string email, string nombreCompleto);
     }
 
     public class UsuarioService : IUsuarioService
